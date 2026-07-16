@@ -26,4 +26,6 @@ export interface Registration {
   transport: boolean;
   attended: boolean;
   timestamp: string;
+  questions?: string;
+  prayer_requests?: string;
 }

@@ -10,6 +10,7 @@ import sammyPhoto from "@/imports/Pas._Sammy.png";
 import heroBg from "@/imports/image.png";
 import eshithaPhoto from "@/imports/Eshitha.jpg";
 import bhanuanna from "@/imports/ABC.png";
+import ticketTemplate from "@/imports/ticket_template.png";
 import poy1 from "@/imports/POY1.JPG";
 import poy2 from "@/imports/POY2.JPG";
 import poy3 from "@/imports/POY3.jpg";
@@ -62,9 +63,11 @@ interface Registration {
   age: string;
   church: string;
   city: string;
-
   attended: boolean;
   timestamp: string;
+  created_at?: string;
+  questions?: string;
+  prayer_requests?: string;
 }
 
 interface CountdownValue {
@@ -80,7 +83,7 @@ const EVENT_DATE = new Date("2026-08-15T09:30:00+05:30");
 const SPEAKERS = [
   {
     name: "Bhanu Chand Alluri",
-    role: "Youth Evangelist & Worship Leader",
+    role: "Youth Evangelist",
     bio: "A passionate evangelist whose anointed ministry has touched thousands of young lives across Andhra Pradesh and Telangana with a message of hope and redemption.",
     image:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&auto=format",
@@ -141,6 +144,7 @@ const PREVIOUS_THEMES = [
     year: "2023",
     theme: "Involve , Introspect , Independence",
     verse: "",
+    desc: "A transformative session focused on active involvement, deep introspection, and finding true independence in Christ.",
     color: "from-[#6b8cff] to-[#4f6de6]",
     youtube:
       "https://www.youtube.com/live/paK_jdTF0-U?si=D5hfPB9AuFIr8qxV",
@@ -149,6 +153,7 @@ const PREVIOUS_THEMES = [
     year: "2024",
     theme: "The Truth will set you free",
     verse: "",
+    desc: "An eye-opening gathering exploring the power of truth and the ultimate freedom it brings to our lives.",
     color: "from-[#e8914a] to-[#c96d28]",
     youtube:
       "https://www.youtube.com/live/DtIgy1bWCOo?si=zinIXeaeXcjFiyLc",
@@ -157,6 +162,7 @@ const PREVIOUS_THEMES = [
     year: "2025",
     theme: "Rooted Deep and Built Up",
     verse: "Col 2:6,7",
+    desc: "A foundation-building year centered on deepening our roots in faith and growing stronger together.",
     color: "from-[#6bcf8f] to-[#3ba765]",
     youtube:
       "https://www.youtube.com/live/YgeiYKsXnJY?si=hX-pw723nTxePlsX",
@@ -165,6 +171,7 @@ const PREVIOUS_THEMES = [
     year: "2026",
     theme: "Your Story Isn't Over",
     verse: "Romans 8:28",
+    desc: "Join us this year as we celebrate God's faithfulness and discover that your story isn't over.",
     color: "from-[#c9a84c] to-[#f1d57a]",
     current: true,
   },
@@ -536,6 +543,15 @@ function Navbar({
               >
                 Register Free
               </button>
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  onRetrieve();
+                }}
+                className="px-5 py-3 border border-[#c9a84c] text-[#c9a84c] text-sm font-bold rounded-full hover:bg-[#c9a84c] hover:text-[#07090f] transition-all"
+              >
+                Already Registered?
+              </button>
             </div>
           </motion.div>
         )}
@@ -544,7 +560,13 @@ function Navbar({
   );
 }
 
-function Hero({ onRegister }: { onRegister: () => void }) {
+function Hero({
+  onRegister,
+  onRetrieve,
+}: {
+  onRegister: () => void;
+  onRetrieve: () => void;
+}) {
   const countdown = useCountdown(EVENT_DATE);
 
   return (
@@ -652,6 +674,12 @@ function Hero({ onRegister }: { onRegister: () => void }) {
           >
             Register Now — Free
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+          <button
+            onClick={onRetrieve}
+            className="px-8 py-4 border border-[#c9a84c] text-[#c9a84c] font-bold rounded-full flex items-center gap-2 transition-all duration-300 hover:bg-[#c9a84c] hover:text-[#07090f] text-sm"
+          >
+            Already Registered?
           </button>
           <a
             href="#schedule"
@@ -1191,10 +1219,9 @@ function PreviousThemes() {
               <div className="w-12 h-px bg-[#c9a84c]/40 mx-auto mb-4" />
 
               <p className="text-white/45 text-sm leading-relaxed">
-                {item.current
-                  ? "Join us this year as we celebrate God's faithfulness and discover that your story isn't over."
-                  : "A powerful theme that inspired and transformed hundreds of young lives."}
-                {item.youtube && (
+                {item.desc}
+              </p>
+              {item.youtube && (
                   <a
                     href={item.youtube}
                     target="_blank"
@@ -1205,7 +1232,6 @@ function PreviousThemes() {
                     Watch on YouTube
                   </a>
                 )}
-              </p>
             </motion.div>
           ))}
         </div>
@@ -1395,6 +1421,140 @@ function Contact() {
 
 // ─── Registration Modal ────────────────────────────────────────────────────────
 
+function EventPassCard({
+  registrationId,
+  name,
+  church,
+  city,
+  cardRef,
+}: {
+  registrationId: string;
+  name: string;
+  email: string;
+  church: string;
+  city: string;
+  cardRef?: React.RefObject<HTMLDivElement | null>;
+}) {
+  return (
+    <div
+      ref={cardRef as any}
+      style={{
+        width: "320px",
+        height: "540px",
+        background: "#050507",
+        borderRadius: "16px",
+        border: "1px solid rgba(255,255,255,0.08)",
+        margin: "0 auto",
+        position: "relative",
+        overflow: "hidden",
+        fontFamily: "'Inter', sans-serif",
+        display: "flex",
+        flexDirection: "column",
+        boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
+      }}
+    >
+      {/* Very faint subtle background line pattern at the top */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "200px",
+          background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)",
+          pointerEvents: "none",
+        }}
+      />
+      
+      {/* ── Top Header Section ── */}
+      <div style={{ padding: "32px 24px 20px 24px", display: "flex", alignItems: "center", gap: "16px" }}>
+        {/* Poster Thumbnail */}
+        <div style={{ width: "72px", height: "72px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, border: "1px solid rgba(255,255,255,0.1)" }}>
+          <img 
+            src={eventBanner} 
+            alt="POY" 
+            crossOrigin="anonymous"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+          />
+        </div>
+        
+        {/* Event Details */}
+        <div style={{ flex: 1 }}>
+          <div style={{ color: "#fff", fontSize: "18px", lineHeight: "1.2", marginBottom: "8px" }}>
+            <span style={{ fontWeight: 800 }}>POWER</span>{" "}
+            <span style={{ fontWeight: 400 }}>of Youth</span>
+          </div>
+          <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", fontWeight: 600, letterSpacing: "0.5px", marginBottom: "4px" }}>
+            15 AUG 2026
+          </div>
+          <div style={{ color: "#fff", fontSize: "14px", fontWeight: 700 }}>
+            9:30 AM
+          </div>
+        </div>
+      </div>
+
+      {/* ── QR Code Section ── */}
+      <div style={{ display: "flex", justifyContent: "center", marginTop: "12px" }}>
+        <div
+          style={{
+            background: "#fff",
+            padding: "10px",
+            borderRadius: "12px",
+            display: "inline-block",
+          }}
+        >
+          <QRCode
+            value={registrationId}
+            size={160}
+            style={{ height: "160px", width: "160px" }}
+            bgColor="#ffffff"
+            fgColor="#000000"
+            level="M"
+          />
+        </div>
+      </div>
+
+      {/* ── EVENT PASS / Reg ID ── */}
+      <div style={{ textAlign: "center", marginTop: "20px", paddingBottom: "24px" }}>
+        <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.6)", fontWeight: 500, letterSpacing: "1px", marginBottom: "6px" }}>
+          EVENT PASS
+        </div>
+        <div style={{ fontSize: "13px", color: "#e8c56c", fontWeight: 700, letterSpacing: "2.5px", fontFamily: "monospace" }}>
+          {registrationId}
+        </div>
+      </div>
+
+      {/* ── Perforated Line ── */}
+      <div style={{ position: "relative", height: "0px", width: "100%", display: "flex", alignItems: "center" }}>
+        {/* Left Notch */}
+        <div style={{ position: "absolute", left: "-10px", width: "20px", height: "20px", borderRadius: "50%", background: "rgba(0,0,0,0.8)", borderRight: "1px solid rgba(255,255,255,0.1)", zIndex: 2 }} />
+        
+        {/* Dashed line */}
+        <div style={{ flex: 1, borderTop: "2px dashed rgba(255,255,255,0.15)", margin: "0 16px" }} />
+        
+        {/* Right Notch */}
+        <div style={{ position: "absolute", right: "-10px", width: "20px", height: "20px", borderRadius: "50%", background: "rgba(0,0,0,0.8)", borderLeft: "1px solid rgba(255,255,255,0.1)", zIndex: 2 }} />
+      </div>
+
+      {/* ── Bottom Section ── */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "16px 24px" }}>
+        {/* Name / Church */}
+        <div style={{ color: "#fff", fontSize: "14px", fontWeight: 600, letterSpacing: "0.5px", marginBottom: "8px", textAlign: "center", textTransform: "uppercase" }}>
+          {church} • {city}
+        </div>
+        
+        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", fontStyle: "italic", marginBottom: "16px", textAlign: "center" }}>
+          Your story isn't over.
+        </div>
+        
+        <div style={{ color: "#5ce1e6", fontSize: "11px", fontWeight: 600, letterSpacing: "1px", textAlign: "center" }}>
+          ROMANS 8:28
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type FormStep = "form" | "success";
 
 interface FormData {
@@ -1404,6 +1564,8 @@ interface FormData {
   age: string;
   church: string;
   city: string;
+  questions?: string;
+  prayer_requests?: string;
 
   agree: boolean;
 }
@@ -1418,6 +1580,27 @@ function RegistrationModal({
   const [regId, setRegId] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const passRef = useRef<HTMLDivElement>(null);
+
+  const downloadPass = async () => {
+    if (!passRef.current) return;
+    try {
+      const dataUrl = await toPng(passRef.current, {
+        cacheBust: false,
+        pixelRatio: 3,
+        style: {
+          transform: "scale(1)",
+          transformOrigin: "top left",
+        },
+      });
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `POY2026-Pass-${regId || "pass"}.png`;
+      a.click();
+    } catch (e) {
+      console.error("Download failed:", e);
+    }
+  };
   const [data, setData] = useState<FormData>({
     name: "",
     email: "",
@@ -1425,6 +1608,8 @@ function RegistrationModal({
     age: "",
     church: "",
     city: "",
+    questions: "",
+    prayer_requests: "",
     agree: false,
   });
   const [errors, setErrors] = useState<Partial<FormData>>({});
@@ -1448,6 +1633,33 @@ function RegistrationModal({
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
+
+    // ── Duplicate check: email ──
+    const { data: emailCheck } = await getSupabase()
+      .from("registrations")
+      .select("id")
+      .eq("email", data.email.trim().toLowerCase())
+      .maybeSingle();
+    if (emailCheck) {
+      setLoading(false);
+      setErrors((prev) => ({ ...prev, email: "This email is already registered. Use 'Already Registered?' to retrieve your pass." }));
+      return;
+    }
+
+    // ── Duplicate check: phone ──
+    const normalize = (p: string) => p.replace(/[\s\-\(\)\+]/g, "").slice(-10);
+    const { data: allRegs } = await getSupabase()
+      .from("registrations")
+      .select("id, phone");
+    const phoneDup = (allRegs || []).find(
+      (r: any) => normalize(r.phone || "") === normalize(data.phone)
+    );
+    if (phoneDup) {
+      setLoading(false);
+      setErrors((prev) => ({ ...prev, phone: "This phone number is already registered. Use 'Already Registered?' to retrieve your pass." }));
+      return;
+    }
+
     const id = generateRegId();
     const { error } = await getSupabase()
       .from("registrations")
@@ -1459,15 +1671,14 @@ function RegistrationModal({
         age: data.age,
         church: data.church,
         city: data.city,
-
+        questions: data.questions || null,
+        prayer_requests: data.prayer_requests || null,
         attended: false,
       });
     setLoading(false);
     if (error) {
       console.error(error);
-
       alert(JSON.stringify(error, null, 2));
-
       return;
     }
     setRegId(id);
@@ -1484,19 +1695,35 @@ function RegistrationModal({
       <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">
         {label}
       </label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        value={data[key] as string}
-        onChange={(e) =>
-          setData({ ...data, [key]: e.target.value })
-        }
-        className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${
-          errors[key]
-            ? "border-red-500/50"
-            : "border-white/10 focus:border-[#c9a84c]/40"
-        }`}
-      />
+      {type === "textarea" ? (
+        <textarea
+          placeholder={placeholder}
+          value={(data[key] as string) || ""}
+          onChange={(e) =>
+            setData({ ...data, [key]: e.target.value })
+          }
+          rows={3}
+          className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all resize-none ${
+            errors[key]
+              ? "border-red-500/50"
+              : "border-white/10 focus:border-[#c9a84c]/40"
+          }`}
+        />
+      ) : (
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={data[key] as string}
+          onChange={(e) =>
+            setData({ ...data, [key]: e.target.value })
+          }
+          className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${
+            errors[key]
+              ? "border-red-500/50"
+              : "border-white/10 focus:border-[#c9a84c]/40"
+          }`}
+        />
+      )}
       {errors[key] && (
         <p className="text-red-400 text-xs mt-1">
           {errors[key] as string}
@@ -1624,6 +1851,20 @@ function RegistrationModal({
                 "Your church name",
               )}
 
+              {field(
+                "questions",
+                "Any questions you would like to ask? (Optional)",
+                "textarea",
+                "Type your questions here...",
+              )}
+
+              {field(
+                "prayer_requests",
+                "Prayer Requests (Optional)",
+                "textarea",
+                "Share your prayer requests with us...",
+              )}
+
               <div className="flex items-start gap-3">
                 <input
                   type="checkbox"
@@ -1673,58 +1914,29 @@ function RegistrationModal({
             </form>
           </>
         ) : (
-          <div className="p-8 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#c9a84c]/10 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-[#c9a84c]" />
+          <div className="p-6 text-center max-h-[85vh] overflow-y-auto">
+            <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-3">
+              <CheckCircle className="w-6 h-6 text-green-400" />
             </div>
             <SectionLabel>Registration Confirmed</SectionLabel>
-            <h2 className="font-['Playfair_Display'] text-2xl font-bold text-white mb-2">
+            <h2 className="font-['Playfair_Display'] text-xl font-bold text-white mb-1">
               You&apos;re In, {data.name.split(" ")[0]}!
             </h2>
-            <p className="text-white/50 text-sm mb-6">
-              A confirmation has been sent to {data.email}
+            <p className="text-white/40 text-xs mb-5">
+              Pass is ready. Screenshot or save it below!
             </p>
-            
 
-            <div className="bg-white/5 border border-[#c9a84c]/20 rounded-2xl p-6 mb-6">
-              <p className="text-[#c9a84c] text-xs font-mono mb-3 tracking-wider">
-                YOUR REGISTRATION ID
-              </p>
-              <p className="font-mono text-2xl font-bold text-white tracking-wider mb-4">
-                {regId}
-              </p>
-              <div className="flex justify-center mb-4">
-                <div className="bg-white rounded-xl p-3">
-                  <QRCode
-                    value={regId}
-                    size={180}
-                    bgColor="#ffffff"
-                    fgColor="#000000"
-                    level="H"
-                  />
-                </div>
-              </div>
-              <p className="text-white/40 text-xs">
-                Screenshot or download this QR code to use at
-                the venue gate
-              </p>
+            <div className="mb-6">
+              <EventPassCard
+                registrationId={regId}
+                name={data.name}
+                church={data.church}
+                city={data.city}
+                cardRef={passRef}
+              />
             </div>
 
-            <div className="bg-[#c9a84c]/5 border border-[#c9a84c]/10 rounded-xl p-4 text-left mb-6">
-              <p className="text-[#c9a84c] font-semibold text-sm mb-2">
-                Event Details
-              </p>
-              <div className="space-y-1 text-xs text-white/50">
-                <p>📅 15 August 2026, Saturday</p>
-                <p>🕘 9:30 AM </p>
-                <p>
-                  📍 Maranatha Temple, Gayatri Nagar, Vijayawada
-                </p>
-                <p>🎟️ Bring this QR code for entry</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
+            <div className="flex gap-3 max-w-[340px] mx-auto">
               <button
                 onClick={onClose}
                 className="flex-1 py-3 border border-white/10 text-white/70 rounded-xl text-sm hover:border-white/20 transition-colors"
@@ -1732,11 +1944,11 @@ function RegistrationModal({
                 Close
               </button>
               <button
-                onClick={() => window.print()}
+                onClick={downloadPass}
                 className="flex-1 py-3 bg-[#c9a84c] text-[#07090f] font-bold rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-[#d4b55f] transition-colors"
               >
                 <Download className="w-4 h-4" />
-                Save Pass
+                Download Pass
               </button>
             </div>
           </div>
@@ -1788,6 +2000,17 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
   };
 
   const handleScan = async () => {
+    // ── Date gate: attendance only allowed on 15 Aug 2026 ──
+    const now = new Date();
+    const eventDay = new Date("2026-08-15T00:00:00+05:30");
+    const eventDayEnd = new Date("2026-08-16T00:00:00+05:30");
+    if (now < eventDay || now >= eventDayEnd) {
+      setScanResult("🔒 Attendance check-in is only allowed on 15 August 2026.");
+      setScanInput("");
+      setTimeout(() => setScanResult(null), 5000);
+      return;
+    }
+
     const scannedId = scanInput.trim().toUpperCase();
     const { data, error } = await getSupabase()
       .from("registrations")
@@ -1851,11 +2074,9 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
             <span className="text-white font-semibold text-sm">
               Admin Dashboard
             </span>
-            {authed && (
-              <span className="text-xs text-green-400/70 font-mono ml-2">
-                ● LIVE
-              </span>
-            )}
+            <span className="text-xs text-green-400/70 font-mono ml-2">
+              ● LIVE
+            </span>
           </div>
           <button
             onClick={onClose}
@@ -1865,9 +2086,30 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="flex-1 overflow-y-auto p-6">
-            {tab === "overview" && (
+        {/* Tab Navigation */}
+        <div className="flex border-b border-white/5 bg-white/2 px-6 py-2 gap-2 flex-wrap">
+          {[
+            { id: "overview", label: "Overview", icon: <BarChart2 className="w-4 h-4" /> },
+            { id: "registrations", label: "Registrations", icon: <Users className="w-4 h-4" /> },
+            { id: "scan", label: "Check-In Scanner", icon: <QrCode className="w-4 h-4" /> },
+          ].map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id as any)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-200 ${
+                tab === t.id
+                  ? "bg-[#c9a84c] text-[#07090f] shadow-lg shadow-[#c9a84c]/20"
+                  : "text-white/60 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              {t.icon}
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6">
+          {tab === "overview" && (
               <div className="space-y-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
@@ -2073,23 +2315,22 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
                 </AnimatePresence>
               </div>
             )}
-          </div>
+        </div>
 
-          <div className="border-t border-white/5 px-6 py-3 flex items-center justify-between">
-            <span className="text-white/20 text-xs font-mono">
-              POY 2026 Admin v1.0
-            </span>
-            <button
-              onClick={() => {
-                setAuthed(false);
-                setPw("");
-              }}
-              className="flex items-center gap-1.5 text-white/30 hover:text-white/60 text-xs transition-colors"
-            >
-              <LogOut className="w-3 h-3" />
-              Sign out
-            </button>
-          </div>
+        <div className="border-t border-white/5 px-6 py-3 flex items-center justify-between">
+          <span className="text-white/20 text-xs font-mono">
+            POY 2026 Admin v1.0
+          </span>
+          <button
+            onClick={async () => {
+              await getSupabase().auth.signOut();
+              onClose();
+            }}
+            className="flex items-center gap-1.5 text-white/30 hover:text-white/60 text-xs transition-colors"
+          >
+            <LogOut className="w-3 h-3" />
+            Sign out
+          </button>
         </div>
       </motion.div>
     </motion.div>
@@ -2098,7 +2339,13 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 
-function Footer({ onRegister }: { onRegister: () => void }) {
+function Footer({ 
+  onRegister,
+  onAdmin,
+}: { 
+  onRegister: () => void;
+  onAdmin?: () => void;
+}) {
   return (
     <footer className="border-t border-white/5 py-16 px-6">
       <div className="max-w-6xl mx-auto">
@@ -2168,10 +2415,22 @@ function Footer({ onRegister }: { onRegister: () => void }) {
         </div>
 
         <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-white/20 text-xs font-mono">
-            © 2026 Maranatha Visvasa Samajam. All rights
-            reserved.
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-white/20 text-xs font-mono">
+              © 2026 Maranatha Visvasa Samajam. All rights reserved.
+            </p>
+            {onAdmin && (
+              <>
+                <span className="text-white/10 text-xs font-mono">•</span>
+                <button
+                  onClick={onAdmin}
+                  className="text-white/10 hover:text-white/30 text-[8px] font-mono transition-colors tracking-widest"
+                >
+                  admin
+                </button>
+              </>
+            )}
+          </div>
 
           <div className="flex items-center gap-3">
             <a
@@ -2228,14 +2487,14 @@ export default function App() {
   const [showRetrieve, setShowRetrieve] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
+  // volunteer scanner token session
+  const [scannerToken, setScannerToken] = useState<string | null>(null);
 
   const [adminEmail, setAdminEmail] = useState("");
-
   const [adminPassword, setAdminPassword] = useState("");
-
   const [adminLoading, setAdminLoading] = useState(false);
-
   const [adminError, setAdminError] = useState("");
+
   useEffect(() => {
     getSupabase()
       .auth.getSession()
@@ -2253,30 +2512,37 @@ export default function App() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Ctrl+Shift+A keyboard shortcut to open admin portal
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        setShowAdmin(prev => !prev);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   async function adminLogin() {
     setAdminLoading(true);
     setAdminError("");
-
-    const { error } =
-      await getSupabase().auth.signInWithPassword({
-        email: adminEmail,
-        password: adminPassword,
-      });
-
+    const { error } = await getSupabase().auth.signInWithPassword({
+      email: adminEmail,
+      password: adminPassword,
+    });
     if (error) {
       setAdminError(error.message);
     }
-
     setAdminLoading(false);
   }
-  // Lock scroll when modal open
+
+  // Lock scroll when register modal open (not for tiny admin widget)
   useEffect(() => {
-    document.body.style.overflow =
-      showRegister || showAdmin ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [showRegister, showAdmin]);
+    document.body.style.overflow = showRegister ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showRegister]);
 
   return (
     <div
@@ -2289,7 +2555,10 @@ export default function App() {
 />
 
       <main>
-        <Hero onRegister={() => setShowRegister(true)} />
+        <Hero
+          onRegister={() => setShowRegister(true)}
+          onRetrieve={() => setShowRetrieve(true)}
+        />
         <EventBanner onRegister={() => setShowRegister(true)} />
         <About />
         <Speakers />
@@ -2300,7 +2569,10 @@ export default function App() {
         <Contact />
       </main>
 
-      <Footer onRegister={() => setShowRegister(true)} />
+      <Footer 
+        onRegister={() => setShowRegister(true)} 
+        onAdmin={() => setShowAdmin(true)} 
+      />
 
       {/* Register CTA ribbon */}
       <motion.div
@@ -2331,79 +2603,863 @@ export default function App() {
           />
         )}
       </AnimatePresence>
+
+      {/* Compact Admin Portal Widget (Ctrl+Shift+A) */}
+      <AnimatePresence>
+        {showAdmin && (
+          <AdminWidget
+            session={session}
+            scannerToken={scannerToken}
+            setScannerToken={setScannerToken}
+            adminEmail={adminEmail}
+            setAdminEmail={setAdminEmail}
+            adminPassword={adminPassword}
+            setAdminPassword={setAdminPassword}
+            adminLoading={adminLoading}
+            adminError={adminError}
+            onAdminLogin={adminLogin}
+            onClose={() => setShowAdmin(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
+// ─── Admin Widget (compact floating portal, Ctrl+Shift+A) ─────────────────────
+
+type AdminWidgetProps = {
+  session: import("@supabase/supabase-js").Session | null;
+  scannerToken: string | null;
+  setScannerToken: (t: string | null) => void;
+  adminEmail: string;
+  setAdminEmail: (v: string) => void;
+  adminPassword: string;
+  setAdminPassword: (v: string) => void;
+  adminLoading: boolean;
+  adminError: string;
+  onAdminLogin: () => void;
+  onClose: () => void;
+};
+
+function AdminWidget({
+  session,
+  scannerToken,
+  setScannerToken,
+  adminEmail,
+  setAdminEmail,
+  adminPassword,
+  setAdminPassword,
+  adminLoading,
+  adminError,
+  onAdminLogin,
+  onClose,
+}: AdminWidgetProps) {
+  type Screen = "login" | "scanner" | "dashboard" | "tokens";
+  const [screen, setScreen] = useState<Screen>(
+    session ? "dashboard" : scannerToken ? "scanner" : "login"
+  );
+  const [tokenInput, setTokenInput] = useState("");
+  const [tokenError, setTokenError] = useState("");
+  const [tokenLoading, setTokenLoading] = useState(false);
+
+  // Switch to dashboard when admin signs in
+  useEffect(() => {
+    if (session) setScreen("dashboard");
+  }, [session]);
+
+  async function loginWithToken() {
+    if (!tokenInput.trim()) return;
+    setTokenLoading(true);
+    setTokenError("");
+    const { data, error } = await getSupabase()
+      .from("scanner_tokens")
+      .select("token, label, active")
+      .eq("token", tokenInput.trim().toUpperCase())
+      .single();
+    setTokenLoading(false);
+    if (error || !data) {
+      setTokenError("Invalid token. Please check with the admin.");
+      return;
+    }
+    if (!data.active) {
+      setTokenError("This token has been deactivated.");
+      return;
+    }
+    setScannerToken(tokenInput.trim().toUpperCase());
+    setScreen("scanner");
+  }
+
+  function handleClose() {
+    if (screen === "scanner" && !session) {
+      setScannerToken(null);
+      setScreen("login");
+    } else {
+      onClose();
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 20, scale: 0.95 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ fontFamily: "'Inter', sans-serif" }}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+      <div className="relative w-full max-w-3xl bg-[#0a0c18] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-3.5 border-b border-white/8 bg-black/30">
+        <div className="flex items-center gap-3">
+          <Shield className="w-5 h-5 text-[#c9a84c]" />
+          <span className="text-white/80 text-sm font-mono tracking-widest uppercase">POY Admin v1.0</span>
+          <span className="text-xs font-mono text-green-400/70">●</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {session && (
+            <>
+              <button onClick={() => setScreen("dashboard")} className={`text-xs px-4 py-1.5 rounded-lg font-semibold transition-colors ${screen === "dashboard" ? "bg-[#c9a84c] text-black" : "text-white/50 hover:text-white hover:bg-white/5"}`}>Overview</button>
+              <button onClick={() => setScreen("scanner")} className={`text-xs px-4 py-1.5 rounded-lg font-semibold transition-colors ${screen === "scanner" ? "bg-[#c9a84c] text-black" : "text-white/50 hover:text-white hover:bg-white/5"}`}>Scan</button>
+              <button onClick={() => setScreen("tokens")} className={`text-xs px-4 py-1.5 rounded-lg font-semibold transition-colors ${screen === "tokens" ? "bg-[#c9a84c] text-black" : "text-white/50 hover:text-white hover:bg-white/5"}`}>Tokens</button>
+            </>
+          )}
+          <button onClick={handleClose} className="text-white/30 hover:text-white ml-2">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="max-h-[88vh] overflow-y-auto">
+        {screen === "login" && (
+          <div className="p-4 space-y-3">
+            <p className="text-white/30 text-[10px] font-mono text-center uppercase tracking-wider">Ctrl+Shift+A • Admin Portal</p>
+            <div className="space-y-2">
+              <p className="text-white/50 text-xs font-semibold">Admin Login</p>
+              <input
+                type="email"
+                placeholder="admin@email.com"
+                value={adminEmail}
+                onChange={e => setAdminEmail(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-[#c9a84c]/40 focus:outline-none"
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={adminPassword}
+                onChange={e => setAdminPassword(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && onAdminLogin()}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-[#c9a84c]/40 focus:outline-none"
+              />
+              {adminError && <p className="text-red-400 text-[10px]">{adminError}</p>}
+              <button
+                onClick={onAdminLogin}
+                disabled={adminLoading}
+                className="w-full py-2 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-lg text-xs transition-colors disabled:opacity-50"
+              >
+                {adminLoading ? "Signing in..." : "Sign In as Admin"}
+              </button>
+            </div>
+            <div className="border-t border-white/8 pt-3 space-y-2">
+              <p className="text-white/50 text-xs font-semibold">Volunteer Scanner Token</p>
+              <input
+                type="text"
+                placeholder="e.g. SCAN-FXB99Z"
+                value={tokenInput}
+                onChange={e => setTokenInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && loginWithToken()}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-blue-500/40 focus:outline-none font-mono"
+              />
+              {tokenError && <p className="text-red-400 text-[10px]">{tokenError}</p>}
+              <button
+                onClick={loginWithToken}
+                disabled={tokenLoading}
+                className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-xs transition-colors disabled:opacity-50"
+              >
+                {tokenLoading ? "Verifying..." : "Access Scanner"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {screen === "scanner" && (
+          <ScannerScreen
+            onClose={() => {
+              if (!session) { setScannerToken(null); setScreen("login"); }
+              else setScreen("dashboard");
+            }}
+          />
+        )}
+
+        {screen === "dashboard" && session && (
+          <AdminDashboardCompact onSignOut={async () => {
+            await getSupabase().auth.signOut();
+            setScreen("login");
+          }} />
+        )}
+
+        {screen === "tokens" && session && (
+          <TokenManagerScreen />
+        )}
+      </div>
+    </div>
+    </motion.div>
+  );
+}
+
+// ─── Camera Scanner Screen ─────────────────────────────────────────────────────
+
+function ScannerScreen({ onClose }: { onClose: () => void }) {
+  const scannerRef = useRef<HTMLDivElement>(null);
+  const scannerInstance = useRef<any>(null);
+  const [scanResult, setScanResult] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [processing, setProcessing] = useState(false);
+  const [cameraError, setCameraError] = useState("");
+  const [manualId, setManualId] = useState("");
+
+  async function processId(rawId: string) {
+    if (processing) return;
+    const id = rawId.trim().toUpperCase();
+    if (!id) return;
+
+    // ── Date gate: attendance only allowed on 15 Aug 2026 ──
+    const now = new Date();
+    const eventDay = new Date("2026-08-15T00:00:00+05:30");
+    const eventDayEnd = new Date("2026-08-16T00:00:00+05:30");
+    if (now < eventDay || now >= eventDayEnd) {
+      setScanResult({ ok: false, msg: "🔒 Check-in is only allowed on 15 August 2026." });
+      setTimeout(() => setScanResult(null), 5000);
+      return;
+    }
+
+    setProcessing(true);
+    setScanResult(null);
+    const { data, error } = await getSupabase()
+      .from("registrations").select("id,name,attended").eq("id", id).single();
+    if (error || !data) {
+      setScanResult({ ok: false, msg: `❌ Not found: ${id}` });
+    } else if (data.attended) {
+      setScanResult({ ok: false, msg: `⚠️ Already checked in — ${data.name}` });
+    } else {
+      await getSupabase().from("registrations").update({ attended: true }).eq("id", id);
+      setScanResult({ ok: true, msg: `✅ Entry granted — ${data.name}` });
+    }
+    setProcessing(false);
+    setTimeout(() => setScanResult(null), 4000);
+  }
+
+  useEffect(() => {
+    let mounted = true;
+    const initScanner = async () => {
+      if (!scannerRef.current) return;
+      try {
+        const { Html5Qrcode } = await import("html5-qrcode");
+        const instance = new Html5Qrcode("qr-reader-box");
+        scannerInstance.current = instance;
+        await instance.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 200, height: 200 } },
+          (decodedText: string) => {
+            if (!processing && mounted) processId(decodedText);
+          },
+          () => {}
+        );
+      } catch (err: any) {
+        if (mounted) setCameraError(err?.message || "Camera not available");
+      }
+    };
+    initScanner();
+    return () => {
+      mounted = false;
+      scannerInstance.current?.stop().catch(() => {});
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div className="p-3 space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-white/60 text-xs font-semibold">QR Check-In Scanner</span>
+        <button onClick={onClose} className="text-white/30 hover:text-white text-[10px] font-mono">← Back</button>
+      </div>
+      {cameraError ? (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-red-400 text-xs text-center">
+          {cameraError}<br/>
+          <span className="text-white/30 text-[10px]">Use manual entry below</span>
+        </div>
+      ) : (
+        <div className="relative">
+          <div id="qr-reader-box" ref={scannerRef} className="w-full rounded-xl overflow-hidden border border-white/10" />
+          {processing && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-xl">
+              <div className="w-5 h-5 border-2 border-[#c9a84c]/30 border-t-[#c9a84c] rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {scanResult && (
+          <motion.div
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className={`text-xs text-center py-2 px-3 rounded-lg border font-semibold ${scanResult.ok ? "bg-green-500/15 border-green-500/30 text-green-400" : "bg-red-500/15 border-red-500/30 text-red-400"}`}
+          >
+            {scanResult.msg}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="border-t border-white/8 pt-2 space-y-2">
+        <p className="text-white/30 text-[10px] font-mono text-center">Manual entry</p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="POY26-XXXXXXXX"
+            value={manualId}
+            onChange={e => setManualId(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && processId(manualId) && setManualId("")}
+            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-[#c9a84c]/40 focus:outline-none font-mono"
+          />
+          <button
+            onClick={() => { processId(manualId); setManualId(""); }}
+            className="px-3 py-2 bg-[#c9a84c] text-[#07090f] rounded-lg text-xs font-bold hover:bg-[#d4b55f] transition-colors"
+          >
+            <Send className="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Compact Admin Dashboard ───────────────────────────────────────────────────
+
+function AdminDashboardCompact({ onSignOut }: { onSignOut: () => void }) {
+  const [regs, setRegs] = useState<Registration[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getSupabase()
+      .from("registrations").select("*").order("created_at", { ascending: false })
+      .then(({ data }) => { if (data) setRegs(data as Registration[]); setLoading(false); });
+  }, []);
+
+  const filtered = regs.filter(r =>
+    r.name.toLowerCase().includes(search.toLowerCase()) ||
+    r.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const stats = {
+    total: regs.length,
+    attended: regs.filter(r => r.attended).length,
+  };
+
+  function exportCSV() {
+    const csv = [
+      "ID,Name,Email,Phone,Age,Church,City,Attended,Questions,Prayer Requests,Date",
+      ...regs.map(r => [
+        r.id,
+        `"${(r.name || "").replace(/"/g, '""')}"`,
+        r.email,
+        r.phone,
+        r.age,
+        `"${(r.church || "").replace(/"/g, '""')}"`,
+        `"${(r.city || "").replace(/"/g, '""')}"`,
+        r.attended,
+        `"${(r.questions || "").replace(/"/g, '""')}"`,
+        `"${(r.prayer_requests || "").replace(/"/g, '""')}"`,
+        r.created_at || r.timestamp || "",
+      ].join(","))
+    ].join("\n");
+    const a = document.createElement("a");
+    a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
+    a.download = "poy2026_registrations.csv";
+    a.click();
+  }
+
+  return (
+    <div className="p-3 space-y-3">
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2">
+        {[
+          { label: "Total", value: stats.total, icon: <Users className="w-3 h-3" /> },
+          { label: "Attended", value: stats.attended, icon: <CheckCircle className="w-3 h-3" /> },
+        ].map(s => (
+          <div key={s.label} className="bg-white/4 border border-white/8 rounded-xl p-3 flex items-center gap-2">
+            <span className="text-[#c9a84c]">{s.icon}</span>
+            <div>
+              <p className="text-white font-bold text-sm">{s.value}</p>
+              <p className="text-white/40 text-[10px]">{s.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Attendance bar */}
+      <div>
+        <div className="flex justify-between text-[10px] text-white/40 mb-1">
+          <span>Attendance Rate</span>
+          <span className="text-[#c9a84c]">{stats.total ? Math.round((stats.attended / stats.total) * 100) : 0}%</span>
+        </div>
+        <div className="w-full bg-white/10 rounded-full h-1.5">
+          <div className="bg-[#c9a84c] h-1.5 rounded-full" style={{ width: `${stats.total ? (stats.attended / stats.total) * 100 : 0}%` }} />
+        </div>
+      </div>
+
+      <button onClick={exportCSV} className="w-full flex items-center justify-center gap-2 py-2 bg-[#c9a84c]/10 border border-[#c9a84c]/20 text-[#c9a84c] rounded-xl text-xs hover:bg-[#c9a84c]/20 transition-colors">
+        <Download className="w-3 h-3" />
+        Export CSV
+      </button>
+
+      {/* Search */}
+      <input
+        type="text"
+        placeholder="Search registrations..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-[#c9a84c]/40 focus:outline-none"
+      />
+
+      {/* List */}
+      <div className="space-y-1.5 max-h-96 overflow-y-auto">
+        {loading ? (
+          <p className="text-white/30 text-[10px] text-center py-4">Loading...</p>
+        ) : filtered.length === 0 ? (
+          <p className="text-white/30 text-[10px] text-center py-4">No results</p>
+        ) : filtered.slice(0, 30).map(r => (
+          <div key={r.id} className="bg-white/3 border border-white/6 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-white text-xs font-medium truncate">{r.name}</p>
+              <p className="text-white/30 text-[10px] truncate">{r.church}</p>
+            </div>
+            <span className={`shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-mono ${r.attended ? "bg-green-500/20 text-green-400" : "bg-white/8 text-white/30"}`}>
+              {r.attended ? "✓" : "—"}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={onSignOut} className="w-full flex items-center justify-center gap-1.5 py-1.5 text-white/30 hover:text-white/60 text-[10px] font-mono transition-colors border-t border-white/5 pt-2">
+        <LogOut className="w-3 h-3" />
+        Sign out
+      </button>
+    </div>
+  );
+}
+
+// ─── Token Manager Screen ──────────────────────────────────────────────────────
+
+function TokenManagerScreen() {
+  type Token = { id: string; token: string; label: string; active: boolean; created_at: string };
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [newLabel, setNewLabel] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  async function fetchTokens() {
+    const { data } = await getSupabase().from("scanner_tokens").select("*").order("created_at", { ascending: false });
+    if (data) setTokens(data as Token[]);
+  }
+
+  useEffect(() => { fetchTokens(); }, []);
+
+  async function createToken() {
+    if (!newLabel.trim()) return;
+    setCreating(true);
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "SCAN-";
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    await getSupabase().from("scanner_tokens").insert({ token: code, label: newLabel.trim(), active: true });
+    setNewLabel("");
+    setCreating(false);
+    fetchTokens();
+  }
+
+  async function toggleToken(id: string, active: boolean) {
+    await getSupabase().from("scanner_tokens").update({ active: !active }).eq("id", id);
+    fetchTokens();
+  }
+
+  async function deleteToken(id: string) {
+    await getSupabase().from("scanner_tokens").delete().eq("id", id);
+    fetchTokens();
+  }
+
+  return (
+    <div className="p-3 space-y-3">
+      <p className="text-white/60 text-xs font-semibold">Volunteer Scanner Tokens</p>
+
+      <div className="flex gap-2">
+        <input
+          type="text"
+          placeholder="Volunteer name"
+          value={newLabel}
+          onChange={e => setNewLabel(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && createToken()}
+          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-[#c9a84c]/40 focus:outline-none"
+        />
+        <button
+          onClick={createToken}
+          disabled={creating}
+          className="px-3 py-2 bg-[#c9a84c] text-[#07090f] rounded-lg text-xs font-bold hover:bg-[#d4b55f] transition-colors disabled:opacity-50"
+        >
+          + Add
+        </button>
+      </div>
+
+      <div className="space-y-1.5 max-h-96 overflow-y-auto">
+        {tokens.length === 0 ? (
+          <p className="text-white/30 text-[10px] text-center py-3">No tokens yet</p>
+        ) : tokens.map(t => (
+          <div key={t.id} className="bg-white/3 border border-white/6 rounded-lg px-3 py-2 flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-xs font-mono">{t.token}</p>
+              <p className="text-white/40 text-[10px] truncate">{t.label}</p>
+            </div>
+            <button
+              onClick={() => toggleToken(t.id, t.active)}
+              className={`shrink-0 text-[9px] px-2 py-1 rounded-full font-mono border transition-colors ${t.active ? "bg-green-500/20 text-green-400 border-green-500/30 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30" : "bg-white/5 text-white/30 border-white/10 hover:bg-green-500/20 hover:text-green-400"}`}
+            >
+              {t.active ? "Active" : "Paused"}
+            </button>
+            <button onClick={() => deleteToken(t.id)} className="text-white/20 hover:text-red-400 transition-colors">
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        ))}
+      </div>
+      <p className="text-white/20 text-[9px] font-mono text-center">Share token code with volunteer to grant scanner access</p>
+    </div>
+  );
+}
+
 function RetrieveModal({
+
   onClose,
 }: {
   onClose: () => void;
 }) {
+  const [method, setMethod] = useState<"email" | "phone">("email");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [step, setStep] = useState<"lookup" | "pass">("lookup");
+  const [registration, setRegistration] = useState<Registration | null>(null);
+  const passRef = useRef<HTMLDivElement>(null);
 
-  const sendOTP = async () => {
-    if (!email.trim()) {
-      setMessage("Please enter your registered email.");
-      return;
+  const lookup = async () => {
+    setMessage("");
+    if (method === "email") {
+      if (!email.trim() || !email.includes("@")) {
+        setMessage("Please enter a valid registered email.");
+        return;
+      }
+      setLoading(true);
+      const { data, error } = await getSupabase()
+        .from("registrations")
+        .select("*")
+        .eq("email", email.trim().toLowerCase())
+        .single();
+      setLoading(false);
+      if (error || !data) {
+        setMessage("No registration found with this email.");
+        return;
+      }
+      setRegistration(data as Registration);
+    } else {
+      if (!phone.trim() || phone.length < 10) {
+        setMessage("Please enter a valid phone number.");
+        return;
+      }
+      setLoading(true);
+      // Fetch all to do client-side phone normalization search
+      const { data: rows, error } = await getSupabase()
+        .from("registrations")
+        .select("*");
+      setLoading(false);
+      if (error || !rows) {
+        setMessage("Error connecting to server. Please try again.");
+        return;
+      }
+      const normalize = (p: string) => p.replace(/[\s\-\(\)\+]/g, "").slice(-10);
+      const target = normalize(phone);
+      const match = rows.find(r => normalize(r.phone || "") === target);
+      if (!match) {
+        setMessage("No registration found with this phone number.");
+        return;
+      }
+      setRegistration(match as Registration);
     }
+    setStep("pass");
+  };
 
-    setLoading(true);
-
-    const { data, error } = await getSupabase()
-      .from("registrations")
-      .select("*")
-      .eq("email", email.trim())
-      .single();
-
-    setLoading(false);
-
-    if (error || !data) {
-      setMessage("No registration found with this email.");
-      return;
+  const downloadPass = async () => {
+    if (!passRef.current) return;
+    try {
+      setLoading(true);
+      const dataUrl = await toPng(passRef.current, {
+        cacheBust: false,
+        pixelRatio: 3,
+        style: {
+          transform: "scale(1)",
+          transformOrigin: "top left",
+        },
+      });
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `POY2026-Pass-${registration?.id || "pass"}.png`;
+      a.click();
+    } catch (e) {
+      console.error("Download failed:", e);
+    } finally {
+      setLoading(false);
     }
-
-    // For now, just confirm that the email exists.
-    // We'll replace this with real OTP sending next.
-    setMessage("Email found! OTP sending will be added next.");
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-      <div className="bg-white rounded-xl p-6 w-[400px] max-w-[90%]">
-        <h2 className="text-2xl font-bold text-black mb-4">
-          Retrieve QR Pass
-        </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
+      <div className="bg-[#0d1020] border border-[#c9a84c]/20 rounded-3xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="relative p-6 pb-4 border-b border-white/5">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#c9a84c]/5 to-transparent" />
+          <div className="relative flex items-center justify-between">
+            <div>
+              <SectionLabel>Ticket Retrieval</SectionLabel>
+              <h2 className="font-['Playfair_Display'] text-xl font-bold text-white">
+                {step === "lookup" ? "Retrieve Your Pass" : "Your Event Pass"}
+              </h2>
+            </div>
+            <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
 
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your registered email"
-          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-black placeholder:text-gray-500 mb-4"
-        />
+        <div className="p-6">
+          {step === "lookup" ? (
+            <div className="space-y-4">
+              <p className="text-white/50 text-xs">
+                Enter your registered email or phone number to find your pass.
+              </p>
 
-        <button
-          onClick={sendOTP}
-          disabled={loading}
-          className="w-full bg-[#c9a84c] text-[#07090f] py-3 rounded-lg font-semibold mb-3"
-        >
-          {loading ? "Checking..." : "Send OTP"}
-        </button>
+              {/* Method Selector */}
+              <div className="flex bg-white/5 rounded-xl p-1 border border-white/5">
+                <button
+                  type="button"
+                  onClick={() => { setMethod("email"); setMessage(""); }}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all ${
+                    method === "email"
+                      ? "bg-[#c9a84c] text-[#07090f] font-bold"
+                      : "text-white/50 hover:text-white"
+                  }`}
+                >
+                  Email Address
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setMethod("phone"); setMessage(""); }}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all ${
+                    method === "phone"
+                      ? "bg-[#c9a84c] text-[#07090f] font-bold"
+                      : "text-white/50 hover:text-white"
+                  }`}
+                >
+                  Phone Number
+                </button>
+              </div>
 
-        {message && (
-          <p className="text-center text-sm text-black mb-3">
-            {message}
+              {method === "email" ? (
+                <div>
+                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && lookup()}
+                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all border-white/10 focus:border-[#c9a84c]/40"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="e.g. 9876543210"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && lookup()}
+                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all border-white/10 focus:border-[#c9a84c]/40"
+                  />
+                </div>
+              )}
+
+              {message && (
+                <p className="text-red-400 text-xs mt-1">
+                  ⚠️ {message}
+                </p>
+              )}
+
+              <button
+                type="button"
+                onClick={lookup}
+                disabled={loading}
+                className="w-full py-3.5 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm mt-4 shadow-[0_0_20px_rgba(201,168,76,0.2)]"
+              >
+                {loading ? "Searching..." : "Find My Pass"}
+              </button>
+            </div>
+          ) : (
+            registration && (
+              <div className="space-y-6 text-center">
+                <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-1">
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                </div>
+                <p className="text-white/60 text-xs -mt-4">
+                  Registration found for {registration.name}!
+                </p>
+
+                <div>
+                  <EventPassCard
+                    registrationId={registration.id}
+                    name={registration.name}
+                    church={registration.church}
+                    city={registration.city}
+                    cardRef={passRef}
+                  />
+                </div>
+
+                <div className="flex gap-3 max-w-[340px] mx-auto">
+                  <button
+                    type="button"
+                    onClick={() => { setStep("lookup"); setRegistration(null); }}
+                    className="flex-1 py-3 border border-white/10 text-white/70 rounded-xl text-sm hover:border-white/20 transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={downloadPass}
+                    disabled={loading}
+                    className="flex-1 py-3 bg-[#c9a84c] text-[#07090f] font-bold rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-[#d4b55f] transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download Pass
+                  </button>
+                </div>
+              </div>
+            )
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminLoginModal({
+  email,
+  setEmail,
+  password,
+  setPassword,
+  loading,
+  error,
+  onLogin,
+  onClose,
+}: {
+  email: string;
+  setEmail: (v: string) => void;
+  password: string;
+  setPassword: (v: string) => void;
+  loading: boolean;
+  error: string;
+  onLogin: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-[#0d1020] border border-[#c9a84c]/20 rounded-3xl w-full max-w-sm overflow-hidden relative shadow-2xl animate-in zoom-in-95 duration-200"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-[#c9a84c]/5 to-transparent pointer-events-none" />
+        
+        <div className="p-6 relative z-10">
+          <div className="w-12 h-12 rounded-full bg-[#c9a84c]/10 flex items-center justify-center mb-4 border border-[#c9a84c]/25">
+            <Shield className="w-6 h-6 text-[#c9a84c]" />
+          </div>
+          
+          <h2 className="font-['Playfair_Display'] text-2xl font-bold text-white mb-1">
+            Admin Portal
+          </h2>
+          <p className="text-white/40 text-xs mb-6">
+            Sign in with your administrator credentials.
           </p>
-        )}
 
-        <button
-          onClick={onClose}
-          className="w-full border border-gray-300 py-3 rounded-lg text-black"
-        >
-          Close
-        </button>
+          <form onSubmit={(e) => { e.preventDefault(); onLogin(); }} className="space-y-4 mb-6">
+            <div>
+              <label className="block text-white/60 text-xs font-semibold mb-1.5 uppercase tracking-wider">
+                Email Address
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="admin@example.com"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:border-[#c9a84c]/50 focus:outline-none transition-colors text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-white/60 text-xs font-semibold mb-1.5 uppercase tracking-wider">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:border-[#c9a84c]/50 focus:outline-none transition-colors text-sm"
+              />
+            </div>
+
+            {error && (
+              <p className="text-red-400 text-xs text-center mt-2 bg-red-500/10 py-2 px-3 rounded-lg border border-red-500/20">
+                {error}
+              </p>
+            )}
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-3 border border-white/10 text-white/70 rounded-xl text-sm hover:border-white/20 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 py-3 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-xl text-sm transition-colors disabled:opacity-50"
+              >
+                {loading ? "Signing in..." : "Sign In"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -1,8 +1,6 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
-import { Resend } from "npm:resend";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
+import nodemailer from "npm:nodemailer@6.9.10";
 
 export default {
   fetch: withSupabase(
@@ -38,9 +36,20 @@ export default {
           );
         }
 
+        // Create nodemailer transporter for Zoho
+        const transporter = nodemailer.createTransport({
+          host: "smtppro.zoho.com",
+          port: 587,
+          secure: false,
+          auth: {
+            user: Deno.env.get("ZOHO_EMAIL")!,
+            pass: Deno.env.get("ZOHO_PASSWORD")!,
+          },
+        });
+
         // Send email
-        const { error: emailError } = await resend.emails.send({
-          from: "Power Of Youth <onboarding@resend.dev>",
+        const mailOptions = {
+          from: `"Power Of Youth" <${Deno.env.get("ZOHO_EMAIL")}>`,
           to: email,
           subject: "Your Power Of Youth OTP",
           html: `
@@ -49,14 +58,9 @@ export default {
             <h1>${otp}</h1>
             <p>This OTP expires in 5 minutes.</p>
           `,
-        });
+        };
 
-        if (emailError) {
-          return Response.json(
-            { error: emailError.message },
-            { status: 500 }
-          );
-        }
+        await transporter.sendMail(mailOptions);
 
         return Response.json({
           success: true,

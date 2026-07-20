@@ -36,8 +36,8 @@ export default {
 
         if (otpError || !otpRow) {
           return Response.json(
-            { error: "Invalid or expired OTP" },
-            { status: 401 }
+            { success: false, error: "Wrong OTP entered. Please try again." },
+            { status: 200 }
           );
         }
 

@@ -1,6 +1,49 @@
 
 import { useState, useEffect, useRef } from "react";
-import { toPng } from "html-to-image";
+import { toPng, toBlob } from "html-to-image";
+
+const savePassAsImage = async (element: HTMLDivElement | null, id: string) => {
+  if (!element) return;
+  const fileName = `POY2026-Pass-${id || "pass"}.png`;
+
+  const options = {
+    pixelRatio: 2,
+    cacheBust: false,
+    fontEmbedCSS: "",
+    skipFonts: true,
+  };
+
+  try {
+    const dataUrl = await toPng(element, options);
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    return;
+  } catch (err) {
+    console.warn("toPng failed, trying toBlob fallback...", err);
+  }
+
+  try {
+    const blob = await toBlob(element, options);
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      return;
+    }
+  } catch (e) {
+    console.error("toBlob failed:", e);
+    alert("Could not download automatically. Please take a screenshot of your pass!");
+  }
+};
 import QRCode from "react-qr-code";
 import type { Session } from "@supabase/supabase-js";
 import { getSupabase } from "@/supabase";
@@ -21,6 +64,7 @@ import poy7 from "@/imports/POY7.jpg";
 import poy8 from "@/imports/POY8.jpg";
 import poy9 from "@/imports/POY9.jpg";
 import maranathaLogo from "@/imports/Maranatha_logo.jpg";
+import poyPosterVertical from "@/imports/POY_poster_vertical.jpg";
 import { motion, AnimatePresence } from "motion/react";
 import {
   AtSign,
@@ -52,6 +96,7 @@ import {
   Sparkles,
   Heart,
   Cross,
+  RefreshCw,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -135,7 +180,7 @@ const SCHEDULE = [
     time: "1:45 PM",
     title: "Prayer & Intercession",
     desc: "prayer for the whole congregation",
-    type: "prayer",
+    type: "praye",
   },
 ];
 
@@ -180,15 +225,15 @@ const PREVIOUS_THEMES = [
 const FAQ = [
   {
     q: "Is registration free?",
-    a: "Yes! Power of Youth 2026 is completely free to attend. We believe no young person should be hindered from encountering God due to financial constraints.",
+    a: "Yes! Power of Youth 2026 is completely free to attend.",
   },
   {
     q: "Is food provided?",
-    a: "Complimentary lunch will be served to all registered attendees. Please mention any dietary requirements during registration.",
+    a: "Complimentary lunch will be served to all registered attendees.",
   },
   {
     q: "What should I bring?",
-    a: "Bring your Bible, a notebook, your QR code pass, and a heart ready to be transformed! Dress modestly — smart casual is recommended.",
+    a: "Bring your Bible, a notebook, your QR code pass, and a heart ready to be transformed!",
   },
 
   {
@@ -197,7 +242,7 @@ const FAQ = [
   },
   {
     q: "Will the event be streamed online?",
-    a: "Select sessions will be streamed on our YouTube channel. However, we strongly encourage physical attendance for the full experience.",
+    a: "The event will be streamed on our YouTube channel. However, we encourage you to join us in person to share in the worship, fellowship, and atmosphere of the gathering.",
   },
 ];
 
@@ -357,7 +402,7 @@ function CountdownBlock({
   return (
     <div className="flex flex-col items-center">
       <div className="relative">
-        <div className="bg-white/5 backdrop-blur border border-[#c9a84c]/20 rounded-xl px-4 py-3 min-w-[72px] text-center">
+        <div className="bg-white/5 backdrop-blur border border-[#c9a84c]/20 rounded-xl px-4 pt-2 pb-2.5 min-w-[72px] text-center">
           <span className="font-['Playfair_Display'] text-3xl md:text-4xl font-bold text-[#c9a84c] tabular-nums">
             {String(value).padStart(2, "0")}
           </span>
@@ -393,7 +438,6 @@ function Navbar({
     "Speakers",
     "Schedule",
     "Gallery",
-    "Register",
   ];
 
   return (
@@ -405,7 +449,14 @@ function Navbar({
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          className="flex items-center gap-3 hover:opacity-90 transition-opacity"
+        >
           <div className="w-10 h-10 rounded-full overflow-hidden border border-[#c9a84c]/40 bg-white flex items-center justify-center">
             <img
               src={maranathaLogo}
@@ -413,11 +464,11 @@ function Navbar({
               className="w-full h-full object-contain"
             />
           </div>
-          <span className="font-['Playfair_Display'] font-bold text-white text-sm tracking-wide">
-            Power of Youth{" "}
+          <span className="font-sans font-bold text-white text-sm tracking-wide">
+            POWER OF YOUTH{" "}
             <span className="text-[#c9a84c]">2026</span>
           </span>
-        </div>
+        </a>
 
         <nav className="hidden md:flex items-center gap-8">
           {links.map((l) => (
@@ -492,7 +543,7 @@ function Navbar({
     onClick={onRegister}
     className="px-5 py-2 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] text-sm font-semibold rounded-full transition-all duration-200 hover:shadow-[0_0_20px_rgba(201,168,76,0.4)]"
   >
-    Register Free
+    Register Now
   </button>
 
   <button
@@ -541,7 +592,7 @@ function Navbar({
                 }}
                 className="mt-2 px-5 py-3 bg-[#c9a84c] text-[#07090f] text-sm font-bold rounded-full"
               >
-                Register Free
+                Register Now
               </button>
               <button
                 onClick={() => {
@@ -595,7 +646,7 @@ function Hero({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase font-mono mb-6">
+          <p className="text-[#c9a84c] text-xs tracking-[0.15em] uppercase font-mono mb-6">
             Maranatha Temple presents
           </p>
         </motion.div>
@@ -616,10 +667,13 @@ function Hero({
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.25 }}
-          className="inline-block px-5 py-2 border border-[#c9a84c]/30 rounded-full mb-6"
+          className="inline-flex flex-col items-center px-6 py-3 border border-[#c9a84c]/30 rounded-2xl mb-6"
         >
           <span className="font-['Playfair_Display'] italic text-[#c9a84c] text-xl md:text-2xl">
             "Your Story Isn't Over"
+          </span>
+          <span className="font-['Playfair_Display'] text-[#c9a84c]/80 text-sm mt-1 tracking-wider">
+            Romans 8:28
           </span>
         </motion.div>
 
@@ -627,9 +681,9 @@ function Hero({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 0.35 }}
-          className="text-white/50 font-mono text-sm mb-10"
+          className="text-white/50 font-mono text-sm mb-6"
         >
-          Romans 8:28 · 15 August 2026 · 9:30 AM
+          <span className="text-[#c9a84c] font-bold">15 August 2026</span> · 9:30 AM
         </motion.p>
 
         <motion.div
@@ -700,10 +754,6 @@ function Hero({
             <MapPin className="w-3 h-3 text-[#c9a84c]" />
             Maranatha Temple, Gayatri Nagar, Vijayawada
           </span>
-          <span className="hidden sm:flex items-center gap-1.5">
-            <Users className="w-3 h-3 text-[#c9a84c]" />·
-            Register Early
-          </span>
         </motion.div>
       </div>
 
@@ -745,7 +795,7 @@ function EventBanner({
                 onClick={onRegister}
                 className="px-7 py-2.5 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-full text-sm transition-all duration-200 shadow-[0_0_30px_rgba(201,168,76,0.5)] flex items-center gap-2"
               >
-                Register Free
+                Register Now
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -824,14 +874,16 @@ function About() {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
           >
-            <div className="relative">
-              <img
-                src={poy7}
-                alt="Youth gathering in prayer"
-                className="rounded-2xl w-full object-cover h-72 md:h-80"
-              />
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-[#07090f]/60 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4">
+            <div className="relative flex flex-col md:block bg-[#07090f]/40 md:bg-transparent p-4 md:p-0 rounded-2xl border border-white/5 md:border-none">
+              <div className="relative rounded-2xl overflow-hidden">
+                <img
+                  src={poy7}
+                  alt="Youth gathering in prayer"
+                  className="w-full h-auto md:h-80 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#07090f]/60 to-transparent hidden md:block" />
+              </div>
+              <div className="mt-4 md:mt-0 md:absolute md:bottom-4 md:left-4 md:right-4">
                 <div className="bg-white/10 backdrop-blur border border-white/10 rounded-xl px-4 py-3">
                   <p className="font-['Playfair_Display'] italic text-white text-sm">
                     "And we know that in all things God works
@@ -953,11 +1005,7 @@ function Speakers() {
                 <ImageWithFallback
                   src={s.localImage ?? s.image}
                   alt={s.name}
-                  className={`w-full h-full transition-transform duration-700 group-hover:scale-105 ${
-                    s.localImage
-                      ? "object-contain object-bottom"
-                      : "object-cover object-top"
-                  }`}
+                  className="w-full h-full transition-transform duration-700 group-hover:scale-105 object-cover object-top"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#07090f] via-[#07090f]/10 to-transparent" />
               </div>
@@ -1253,10 +1301,8 @@ function FAQSection() {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <SectionLabel>FAQ</SectionLabel>
           <h2 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-white mb-4">
-            Common{" "}
-            <span className="text-[#c9a84c]">Questions</span>
+            FA<span className="text-[#c9a84c]">Q</span>
           </h2>
           <GoldLine />
         </motion.div>
@@ -1351,9 +1397,12 @@ function Contact() {
                 <div className="flex items-center gap-3">
                   <Phone className="w-4 h-4 text-[#c9a84c]" />
                   <div>
-                    <p className="text-white/80 text-sm">
+                    <a
+                      href="tel:+919394247333"
+                      className="text-white/80 text-sm hover:text-[#c9a84c] transition-colors"
+                    >
                       +91 93942 47333
-                    </p>
+                    </a>
                     <p className="text-white/40 text-xs">
                       Prayer Hut
                     </p>
@@ -1362,9 +1411,12 @@ function Contact() {
                 <div className="flex items-center gap-3">
                   <Mail className="w-4 h-4 text-[#c9a84c]" />
                   <div>
-                    <p className="text-white/80 text-sm">
+                    <a
+                      href="mailto:maranathatemple.vja@gmail.com"
+                      className="text-white/80 text-sm hover:text-[#c9a84c] transition-colors break-all"
+                    >
                       maranathatemple.vja@gmail.com
-                    </p>
+                    </a>
                     <p className="text-white/40 text-xs">
                       Email response within 24 hours
                     </p>
@@ -1430,126 +1482,180 @@ function EventPassCard({
 }: {
   registrationId: string;
   name: string;
-  email: string;
   church: string;
   city: string;
   cardRef?: React.RefObject<HTMLDivElement | null>;
 }) {
+  const nameLength = (name || "").trim().length;
+  const nameFontSize =
+    nameLength > 22 ? "12px" : nameLength > 16 ? "14px" : "16px";
+
   return (
     <div
       ref={cardRef as any}
       style={{
         width: "320px",
-        height: "540px",
-        background: "#050507",
-        borderRadius: "16px",
-        border: "1px solid rgba(255,255,255,0.08)",
+        height: "694px",
         margin: "0 auto",
         position: "relative",
         overflow: "hidden",
         fontFamily: "'Inter', sans-serif",
-        display: "flex",
-        flexDirection: "column",
         boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
+        borderRadius: "16px",
+        boxSizing: "border-box",
       }}
     >
-      {/* Very faint subtle background line pattern at the top */}
-      <div
+      {/* Background Template Image */}
+      <img
+        src={ticketTemplate}
+        alt="Ticket Template"
         style={{
           position: "absolute",
           top: 0,
           left: 0,
-          right: 0,
-          height: "200px",
-          background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)",
+          width: "100%",
+          height: "100%",
+          objectFit: "fill",
+          zIndex: 0,
           pointerEvents: "none",
         }}
       />
-      
-      {/* ── Top Header Section ── */}
-      <div style={{ padding: "32px 24px 20px 24px", display: "flex", alignItems: "center", gap: "16px" }}>
-        {/* Poster Thumbnail */}
-        <div style={{ width: "72px", height: "72px", borderRadius: "8px", overflow: "hidden", flexShrink: 0, border: "1px solid rgba(255,255,255,0.1)" }}>
-          <img 
-            src={eventBanner} 
-            alt="POY" 
-            crossOrigin="anonymous"
-            style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-          />
-        </div>
-        
-        {/* Event Details */}
-        <div style={{ flex: 1 }}>
-          <div style={{ color: "#fff", fontSize: "18px", lineHeight: "1.2", marginBottom: "8px" }}>
-            <span style={{ fontWeight: 800 }}>POWER</span>{" "}
-            <span style={{ fontWeight: 400 }}>of Youth</span>
-          </div>
-          <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", fontWeight: 600, letterSpacing: "0.5px", marginBottom: "4px" }}>
-            15 AUG 2026
-          </div>
-          <div style={{ color: "#fff", fontSize: "14px", fontWeight: 700 }}>
-            9:30 AM
-          </div>
-        </div>
+
+      {/* ── QR Code Section (zIndex: 1) ── */}
+      <div
+        style={{
+          position: "absolute",
+          top: "260px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "#ffffff",
+          padding: "8px",
+          borderRadius: "12px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+          zIndex: 1,
+          boxSizing: "border-box",
+        }}
+      >
+        <QRCode
+          value={registrationId}
+          size={110}
+          style={{ height: "110px", width: "110px" }}
+          bgColor="#ffffff"
+          fgColor="#000000"
+          level="M"
+        />
       </div>
 
-      {/* ── QR Code Section ── */}
-      <div style={{ display: "flex", justifyContent: "center", marginTop: "12px" }}>
-        <div
-          style={{
-            background: "#fff",
-            padding: "10px",
-            borderRadius: "12px",
-            display: "inline-block",
-          }}
-        >
-          <QRCode
-            value={registrationId}
-            size={160}
-            style={{ height: "160px", width: "160px" }}
-            bgColor="#ffffff"
-            fgColor="#000000"
-            level="M"
-          />
-        </div>
+      {/* ── EVENT PASS Label ── */}
+      <div
+        style={{
+          position: "absolute",
+          top: "392px",
+          width: "100%",
+          textAlign: "center",
+          color: "#e8c56c",
+          fontSize: "10px",
+          fontWeight: 600,
+          letterSpacing: "1.5px",
+          textTransform: "uppercase",
+          zIndex: 1,
+          boxSizing: "border-box",
+        }}
+      >
+        Event Pass
       </div>
 
-      {/* ── EVENT PASS / Reg ID ── */}
-      <div style={{ textAlign: "center", marginTop: "20px", paddingBottom: "24px" }}>
-        <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.6)", fontWeight: 500, letterSpacing: "1px", marginBottom: "6px" }}>
-          EVENT PASS
-        </div>
-        <div style={{ fontSize: "13px", color: "#e8c56c", fontWeight: 700, letterSpacing: "2.5px", fontFamily: "monospace" }}>
-          {registrationId}
-        </div>
+      {/* ── Diamond Separator ── */}
+      <div
+        style={{
+          position: "absolute",
+          top: "407px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          color: "#e8c56c",
+          zIndex: 1,
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ width: "30px", height: "1px", background: "linear-gradient(90deg, transparent, #e8c56c)" }} />
+        <div style={{ fontSize: "6px" }}>◆</div>
+        <div style={{ width: "30px", height: "1px", background: "linear-gradient(90deg, #e8c56c, transparent)" }} />
       </div>
 
-      {/* ── Perforated Line ── */}
-      <div style={{ position: "relative", height: "0px", width: "100%", display: "flex", alignItems: "center" }}>
-        {/* Left Notch */}
-        <div style={{ position: "absolute", left: "-10px", width: "20px", height: "20px", borderRadius: "50%", background: "rgba(0,0,0,0.8)", borderRight: "1px solid rgba(255,255,255,0.1)", zIndex: 2 }} />
-        
-        {/* Dashed line */}
-        <div style={{ flex: 1, borderTop: "2px dashed rgba(255,255,255,0.15)", margin: "0 16px" }} />
-        
-        {/* Right Notch */}
-        <div style={{ position: "absolute", right: "-10px", width: "20px", height: "20px", borderRadius: "50%", background: "rgba(0,0,0,0.8)", borderLeft: "1px solid rgba(255,255,255,0.1)", zIndex: 2 }} />
+      {/* ── Name ── */}
+      <div
+        style={{
+          position: "absolute",
+          top: "423px",
+          width: "100%",
+          padding: "0 16px",
+          textAlign: "center",
+          color: "#ffffff",
+          fontSize: nameFontSize,
+          fontWeight: "bold",
+          fontFamily: "'Playfair Display', serif",
+          letterSpacing: "0.5px",
+          textTransform: "uppercase",
+          zIndex: 1,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          boxSizing: "border-box",
+        }}
+      >
+        {name}
       </div>
 
-      {/* ── Bottom Section ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "16px 24px" }}>
-        {/* Name / Church */}
-        <div style={{ color: "#fff", fontSize: "14px", fontWeight: 600, letterSpacing: "0.5px", marginBottom: "8px", textAlign: "center", textTransform: "uppercase" }}>
-          {church} • {city}
-        </div>
-        
-        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", fontStyle: "italic", marginBottom: "16px", textAlign: "center" }}>
-          Your story isn't over.
-        </div>
-        
-        <div style={{ color: "#5ce1e6", fontSize: "11px", fontWeight: 600, letterSpacing: "1px", textAlign: "center" }}>
-          ROMANS 8:28
-        </div>
+      {/* ── Church / City ── */}
+      <div
+        style={{
+          position: "absolute",
+          top: "450px",
+          width: "100%",
+          padding: "0 16px",
+          textAlign: "center",
+          color: "rgba(255,255,255,0.55)",
+          fontSize: "10px",
+          fontWeight: 600,
+          letterSpacing: "0.5px",
+          textTransform: "uppercase",
+          zIndex: 1,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          boxSizing: "border-box",
+        }}
+      >
+        {church} • {city}
+      </div>
+
+      {/* ── Registration ID ── */}
+      <div
+        style={{
+          position: "absolute",
+          top: "472px",
+          width: "100%",
+          padding: "0 16px",
+          textAlign: "center",
+          color: "#e8c56c",
+          fontSize: "11px",
+          fontFamily: "monospace",
+          fontWeight: "bold",
+          letterSpacing: "2px",
+          zIndex: 1,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          boxSizing: "border-box",
+        }}
+      >
+        {registrationId}
       </div>
     </div>
   );
@@ -1583,23 +1689,7 @@ function RegistrationModal({
   const passRef = useRef<HTMLDivElement>(null);
 
   const downloadPass = async () => {
-    if (!passRef.current) return;
-    try {
-      const dataUrl = await toPng(passRef.current, {
-        cacheBust: false,
-        pixelRatio: 3,
-        style: {
-          transform: "scale(1)",
-          transformOrigin: "top left",
-        },
-      });
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = `POY2026-Pass-${regId || "pass"}.png`;
-      a.click();
-    } catch (e) {
-      console.error("Download failed:", e);
-    }
+    await savePassAsImage(passRef.current, regId);
   };
   const [data, setData] = useState<FormData>({
     name: "",
@@ -1613,6 +1703,36 @@ function RegistrationModal({
     agree: false,
   });
   const [errors, setErrors] = useState<Partial<FormData>>({});
+
+  useEffect(() => {
+    if (step === "success" && regId && data.email) {
+      const sendEmail = async () => {
+        // Wait for the pass element to render fully in the DOM
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        if (!passRef.current) return;
+        try {
+          const dataUrl = await toPng(passRef.current, {
+            cacheBust: false,
+            pixelRatio: 2,
+            fontEmbedCSS: "",
+            skipFonts: true,
+          });
+          const base64Data = dataUrl.split(",")[1];
+          await getSupabase().functions.invoke("send-ticket", {
+            body: {
+              email: data.email.trim().toLowerCase(),
+              name: data.name,
+              registrationId: regId,
+              image: base64Data,
+            },
+          });
+        } catch (err) {
+          console.error("Failed to send ticket email:", err);
+        }
+      };
+      sendEmail();
+    }
+  }, [step, regId]);
 
   const validate = () => {
     const e: Partial<Record<keyof FormData, string>> = {};
@@ -1789,7 +1909,7 @@ function RegistrationModal({
                   "phone",
                   "Phone Number *",
                   "tel",
-                  "+91 98765 43210",
+                  "",
                 )}
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -1963,6 +2083,7 @@ function RegistrationModal({
 function AdminDashboard({ onClose }: { onClose: () => void }) {
   const [regs, setRegs] = useState<Registration[]>([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<
     "overview" | "registrations" | "scan"
   >("overview");
@@ -1975,10 +2096,12 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
     fetchRegs();
   }, []);
   const fetchRegs = async () => {
+    setLoading(true);
     const { data, error } = await getSupabase()
       .from("registrations")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("timestamp", { ascending: false });
+    setLoading(false);
     if (!error && data) setRegs(data as Registration[]);
   };
 
@@ -2049,7 +2172,7 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
     attended: regs.filter((r) => r.attended).length,
     cities: [...new Set(regs.map((r) => r.city))].length,
     today: regs.filter((r) =>
-      r.created_at?.startsWith(
+      r.timestamp?.startsWith(
         new Date().toISOString().split("T")[0],
       ),
     ).length,
@@ -2178,12 +2301,20 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
 
                 <div className="flex gap-3">
                   <button
+                    onClick={fetchRegs}
+                    disabled={loading}
+                    className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white rounded-xl text-xs hover:bg-white/10 transition-colors disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </button>
+                  <button
                     onClick={() => {
                       const csv = [
                         "ID,Name,Email,Phone,Age,Church,City,Attended,Date",
                         ...regs.map(
                           (r) =>
-                            `${r.id},${r.name},${r.email},${r.phone},${r.age},${r.church},${r.city},${r.attended},${r.created_at}`,
+                            `${r.id},"${(r.name || "").replace(/"/g, '""')}",${r.email},${r.phone},${r.age},"${(r.church || "").replace(/"/g, '""')}","${(r.city || "").replace(/"/g, '""')}",${r.attended},${r.timestamp || ""}`,
                         ),
                       ].join("\n");
                       const a = document.createElement("a");
@@ -2408,7 +2539,7 @@ function Footer({
               onClick={onRegister}
               className="mt-5 px-5 py-2.5 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] text-sm font-bold rounded-full transition-all duration-200 flex items-center gap-2"
             >
-              Register Free
+              Register Now
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -2432,12 +2563,12 @@ function Footer({
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
             <a
               href="https://www.youtube.com/@MaranathaTemple"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/8 hover:border-[#ff0000]/40 hover:bg-[#ff0000]/5 transition-all duration-300"
+              className="group flex items-center gap-1.5 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-white/8 hover:border-[#ff0000]/40 hover:bg-[#ff0000]/5 transition-all duration-300"
               aria-label="Subscribe to Maranatha Temple on YouTube"
             >
               <YouTubeIcon className="w-4 h-4 text-white/30 group-hover:text-[#ff0000] transition-colors" />
@@ -2449,24 +2580,48 @@ function Footer({
               href="https://chat.whatsapp.com/Bc7Xjj5RAjW1H1OqyX4F5p?mode=gi_t"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/8 hover:border-[#25d366]/40 hover:bg-[#25d366]/5 transition-all duration-300"
+              className="group flex items-center gap-1.5 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-white/8 hover:border-[#25d366]/40 hover:bg-[#25d366]/5 transition-all duration-300"
               aria-label="Join Maranatha Temple WhatsApp Community"
             >
               <WhatsAppIcon className="w-4 h-4 text-white/30 group-hover:text-[#25d366] transition-colors" />
               <span className="text-white/30 group-hover:text-white/70 text-xs transition-colors">
-                Join Community
+                WhatsApp
               </span>
             </a>
             <a
               href="https://www.instagram.com/maranatha_temple"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/8 hover:border-[#e1306c]/40 hover:bg-[#e1306c]/5 transition-all duration-300"
+              className="group flex items-center gap-1.5 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-white/8 hover:border-[#e1306c]/40 hover:bg-[#e1306c]/5 transition-all duration-300"
               aria-label="Follow Maranatha Temple on Instagram"
             >
               <InstagramIcon className="w-4 h-4 text-white/30 group-hover:text-[#e1306c] transition-colors" />
               <span className="text-white/30 group-hover:text-white/70 text-xs transition-colors">
-                @maranatha_temple
+                Instagram
+              </span>
+            </a>
+            <a
+              href="https://www.facebook.com/share/14i4CWKJJDt/?mibextid=wwXIfr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-1.5 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-white/8 hover:border-[#1877F2]/40 hover:bg-[#1877F2]/5 transition-all duration-300"
+              aria-label="Follow Maranatha Temple on Facebook"
+            >
+              <FacebookIcon className="w-4 h-4 text-white/30 group-hover:text-[#1877F2] transition-colors" />
+              <span className="text-white/30 group-hover:text-white/70 text-xs transition-colors">
+                Facebook
+              </span>
+            </a>
+            <a
+              href="https://www.threads.net/@yourpage"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-1.5 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 rounded-full border border-white/8 hover:border-white/40 hover:bg-white/5 transition-all duration-300"
+              aria-label="Follow us on Threads"
+            >
+              <AtSign className="w-4 h-4 text-white/30 group-hover:text-white transition-colors" />
+              <span className="text-white/30 group-hover:text-white/70 text-xs transition-colors">
+                Threads
               </span>
             </a>
           </div>
@@ -2579,15 +2734,15 @@ export default function App() {
         initial={{ y: 100 }}
         animate={{ y: 0 }}
         transition={{ delay: 2, duration: 0.6 }}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 hidden md:block"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-max max-w-[92vw]"
       >
         <button
           onClick={() => setShowRegister(true)}
-          className="flex items-center gap-3 px-6 py-3 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-full shadow-[0_8px_40px_rgba(201,168,76,0.4)] transition-all duration-300 hover:shadow-[0_8px_60px_rgba(201,168,76,0.6)] text-sm"
+          className="flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-full shadow-[0_8px_40px_rgba(201,168,76,0.4)] transition-all duration-300 hover:shadow-[0_8px_60px_rgba(201,168,76,0.6)] text-xs md:text-sm whitespace-nowrap"
         >
-          <Sparkles className="w-4 h-4" />
-          Register Free — 15 August 2026
-          <ArrowRight className="w-4 h-4" />
+          <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
+          <span>Register Now — 15 August 2026</span>
+          <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
         </button>
       </motion.div>
 
@@ -2945,7 +3100,7 @@ function AdminDashboardCompact({ onSignOut }: { onSignOut: () => void }) {
 
   useEffect(() => {
     getSupabase()
-      .from("registrations").select("*").order("created_at", { ascending: false })
+      .from("registrations").select("*").order("timestamp", { ascending: false })
       .then(({ data }) => { if (data) setRegs(data as Registration[]); setLoading(false); });
   }, []);
 
@@ -2973,7 +3128,7 @@ function AdminDashboardCompact({ onSignOut }: { onSignOut: () => void }) {
         r.attended,
         `"${(r.questions || "").replace(/"/g, '""')}"`,
         `"${(r.prayer_requests || "").replace(/"/g, '""')}"`,
-        r.created_at || r.timestamp || "",
+        r.timestamp || "",
       ].join(","))
     ].join("\n");
     const a = document.createElement("a");
@@ -3138,84 +3293,89 @@ function TokenManagerScreen() {
 }
 
 function RetrieveModal({
-
   onClose,
 }: {
   onClose: () => void;
 }) {
-  const [method, setMethod] = useState<"email" | "phone">("email");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [step, setStep] = useState<"lookup" | "pass">("lookup");
+  const [step, setStep] = useState<"lookup" | "otp" | "pass">("lookup");
   const [registration, setRegistration] = useState<Registration | null>(null);
   const passRef = useRef<HTMLDivElement>(null);
 
-  const lookup = async () => {
+  const sendOtp = async () => {
     setMessage("");
-    if (method === "email") {
-      if (!email.trim() || !email.includes("@")) {
-        setMessage("Please enter a valid registered email.");
-        return;
-      }
-      setLoading(true);
-      const { data, error } = await getSupabase()
-        .from("registrations")
-        .select("*")
-        .eq("email", email.trim().toLowerCase())
-        .single();
-      setLoading(false);
-      if (error || !data) {
-        setMessage("No registration found with this email.");
-        return;
-      }
-      setRegistration(data as Registration);
-    } else {
-      if (!phone.trim() || phone.length < 10) {
-        setMessage("Please enter a valid phone number.");
-        return;
-      }
-      setLoading(true);
-      // Fetch all to do client-side phone normalization search
-      const { data: rows, error } = await getSupabase()
-        .from("registrations")
-        .select("*");
-      setLoading(false);
-      if (error || !rows) {
-        setMessage("Error connecting to server. Please try again.");
-        return;
-      }
-      const normalize = (p: string) => p.replace(/[\s\-\(\)\+]/g, "").slice(-10);
-      const target = normalize(phone);
-      const match = rows.find(r => normalize(r.phone || "") === target);
-      if (!match) {
-        setMessage("No registration found with this phone number.");
-        return;
-      }
-      setRegistration(match as Registration);
+    if (!email.trim() || !email.includes("@")) {
+      setMessage("Please enter a valid registered email.");
+      return;
     }
-    setStep("pass");
+    setLoading(true);
+
+    // Verify email exists in database first
+    const { data: checkData, error: checkError } = await getSupabase()
+      .from("registrations")
+      .select("id")
+      .eq("email", email.trim().toLowerCase())
+      .maybeSingle();
+
+    if (checkError || !checkData) {
+      setLoading(false);
+      setMessage("No registration found with this email.");
+      return;
+    }
+
+    // Call Supabase Edge Function to send OTP via Zoho
+    const { data, error } = await getSupabase().functions.invoke("send-otp", {
+      body: { email: email.trim().toLowerCase() }
+    });
+    setLoading(false);
+
+    if (error || (data && data.error)) {
+      setMessage(error?.message || data?.error || "Failed to send OTP. Please try again.");
+      return;
+    }
+
+    setStep("otp");
+  };
+
+  const verifyOtp = async () => {
+    setMessage("");
+    if (!otp.trim() || otp.length !== 6) {
+      setMessage("Please enter a 6-digit OTP code.");
+      return;
+    }
+    setLoading(true);
+
+    // Call Supabase Edge Function to verify OTP
+    const { data, error } = await getSupabase().functions.invoke("verify-otp", {
+      body: { email: email.trim().toLowerCase(), otp: otp.trim() }
+    });
+    setLoading(false);
+
+    if (error || (data && data.error) || (data && data.success === false)) {
+      const serverErr = data?.error;
+      if (serverErr) {
+        setMessage(serverErr);
+      } else {
+        setMessage("Wrong OTP entered. Please try again.");
+      }
+      return;
+    }
+
+    if (data && data.success && data.registration) {
+      setRegistration(data.registration as Registration);
+      setStep("pass");
+    } else {
+      setMessage("Verification failed. Please try again.");
+    }
   };
 
   const downloadPass = async () => {
-    if (!passRef.current) return;
     try {
       setLoading(true);
-      const dataUrl = await toPng(passRef.current, {
-        cacheBust: false,
-        pixelRatio: 3,
-        style: {
-          transform: "scale(1)",
-          transformOrigin: "top left",
-        },
-      });
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = `POY2026-Pass-${registration?.id || "pass"}.png`;
-      a.click();
-    } catch (e) {
-      console.error("Download failed:", e);
+      await savePassAsImage(passRef.current, registration?.id || "pass");
     } finally {
       setLoading(false);
     }
@@ -3231,7 +3391,7 @@ function RetrieveModal({
             <div>
               <SectionLabel>Ticket Retrieval</SectionLabel>
               <h2 className="font-['Playfair_Display'] text-xl font-bold text-white">
-                {step === "lookup" ? "Retrieve Your Pass" : "Your Event Pass"}
+                {step === "lookup" ? "Retrieve Your Pass" : step === "otp" ? "Verify OTP" : "Your Event Pass"}
               </h2>
             </div>
             <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
@@ -3244,64 +3404,22 @@ function RetrieveModal({
           {step === "lookup" ? (
             <div className="space-y-4">
               <p className="text-white/50 text-xs">
-                Enter your registered email or phone number to find your pass.
+                Enter your registered email address. We will send a verification code (OTP) to your email to verify your identity.
               </p>
 
-              {/* Method Selector */}
-              <div className="flex bg-white/5 rounded-xl p-1 border border-white/5">
-                <button
-                  type="button"
-                  onClick={() => { setMethod("email"); setMessage(""); }}
-                  className={`flex-1 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all ${
-                    method === "email"
-                      ? "bg-[#c9a84c] text-[#07090f] font-bold"
-                      : "text-white/50 hover:text-white"
-                  }`}
-                >
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">
                   Email Address
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setMethod("phone"); setMessage(""); }}
-                  className={`flex-1 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all ${
-                    method === "phone"
-                      ? "bg-[#c9a84c] text-[#07090f] font-bold"
-                      : "text-white/50 hover:text-white"
-                  }`}
-                >
-                  Phone Number
-                </button>
+                </label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && sendOtp()}
+                  className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all border-white/10 focus:border-[#c9a84c]/40"
+                />
               </div>
-
-              {method === "email" ? (
-                <div>
-                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && lookup()}
-                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all border-white/10 focus:border-[#c9a84c]/40"
-                  />
-                </div>
-              ) : (
-                <div>
-                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="e.g. 9876543210"
-                    value={phone}
-                    onChange={e => setPhone(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && lookup()}
-                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all border-white/10 focus:border-[#c9a84c]/40"
-                  />
-                </div>
-              )}
 
               {message && (
                 <p className="text-red-400 text-xs mt-1">
@@ -3311,12 +3429,57 @@ function RetrieveModal({
 
               <button
                 type="button"
-                onClick={lookup}
+                onClick={sendOtp}
                 disabled={loading}
                 className="w-full py-3.5 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm mt-4 shadow-[0_0_20px_rgba(201,168,76,0.2)]"
               >
-                {loading ? "Searching..." : "Find My Pass"}
+                {loading ? "Sending OTP..." : "Send Verification OTP"}
               </button>
+            </div>
+          ) : step === "otp" ? (
+            <div className="space-y-4">
+              <p className="text-white/50 text-xs">
+                We've sent a 6-digit verification code to <strong className="text-white">{email}</strong>. Please enter the OTP below.
+              </p>
+
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">
+                  Verification Code (OTP)
+                </label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  placeholder=""
+                  value={otp}
+                  onChange={e => setOtp(e.target.value.replace(/\D/g, ""))}
+                  onKeyDown={e => e.key === "Enter" && verifyOtp()}
+                  className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-white text-center text-lg font-mono font-bold tracking-widest placeholder:text-white/25 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all border-white/10 focus:border-[#c9a84c]/40"
+                />
+              </div>
+
+              {message && (
+                <p className="text-red-400 text-xs mt-1">
+                  ⚠️ {message}
+                </p>
+              )}
+
+              <div className="flex gap-3 mt-4">
+                <button
+                  type="button"
+                  onClick={() => { setStep("lookup"); setOtp(""); setMessage(""); }}
+                  className="flex-1 py-3 border border-white/10 text-white/70 rounded-xl text-sm hover:border-white/20 transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={verifyOtp}
+                  disabled={loading}
+                  className="flex-1 py-3 bg-[#c9a84c] text-[#07090f] font-bold rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-[#d4b55f] transition-colors"
+                >
+                  {loading ? "Verifying..." : "Verify & Get Pass"}
+                </button>
+              </div>
             </div>
           ) : (
             registration && (
@@ -3341,7 +3504,7 @@ function RetrieveModal({
                 <div className="flex gap-3 max-w-[340px] mx-auto">
                   <button
                     type="button"
-                    onClick={() => { setStep("lookup"); setRegistration(null); }}
+                    onClick={() => { setStep("lookup"); setRegistration(null); setOtp(""); }}
                     className="flex-1 py-3 border border-white/10 text-white/70 rounded-xl text-sm hover:border-white/20 transition-colors"
                   >
                     Back

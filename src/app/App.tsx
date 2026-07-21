@@ -1495,7 +1495,7 @@ function EventPassCard({
       ref={cardRef as any}
       style={{
         width: "320px",
-        height: "694px",
+        height: "601px",
         margin: "0 auto",
         position: "relative",
         overflow: "hidden",
@@ -1525,7 +1525,7 @@ function EventPassCard({
       <div
         style={{
           position: "absolute",
-          top: "260px",
+          top: "165px",
           left: "50%",
           transform: "translateX(-50%)",
           background: "#ffffff",
@@ -1541,8 +1541,8 @@ function EventPassCard({
       >
         <QRCode
           value={registrationId}
-          size={110}
-          style={{ height: "110px", width: "110px" }}
+          size={120}
+          style={{ height: "120px", width: "120px" }}
           bgColor="#ffffff"
           fgColor="#000000"
           level="M"
@@ -1553,7 +1553,7 @@ function EventPassCard({
       <div
         style={{
           position: "absolute",
-          top: "392px",
+          top: "330px",
           width: "100%",
           textAlign: "center",
           color: "#e8c56c",
@@ -1572,7 +1572,7 @@ function EventPassCard({
       <div
         style={{
           position: "absolute",
-          top: "407px",
+          top: "345px",
           left: "50%",
           transform: "translateX(-50%)",
           display: "flex",
@@ -1592,7 +1592,7 @@ function EventPassCard({
       <div
         style={{
           position: "absolute",
-          top: "423px",
+          top: "360px",
           width: "100%",
           padding: "0 16px",
           textAlign: "center",
@@ -1616,7 +1616,7 @@ function EventPassCard({
       <div
         style={{
           position: "absolute",
-          top: "450px",
+          top: "386px",
           width: "100%",
           padding: "0 16px",
           textAlign: "center",
@@ -1639,7 +1639,7 @@ function EventPassCard({
       <div
         style={{
           position: "absolute",
-          top: "472px",
+          top: "408px",
           width: "100%",
           padding: "0 16px",
           textAlign: "center",

@@ -1014,11 +1014,8 @@ function Speakers() {
                 <h3 className="font-['Playfair_Display'] text-2xl font-bold text-white mb-1">
                   {s.name}
                 </h3>
-                <p className="text-[#c9a84c] text-xs font-mono tracking-wider mb-4">
+                <p className="text-[#c9a84c] text-xs font-mono tracking-wider">
                   {s.role}
-                </p>
-                <p className="text-white/50 text-sm leading-relaxed mb-4">
-                  {s.bio}
                 </p>
               </div>
             </motion.div>

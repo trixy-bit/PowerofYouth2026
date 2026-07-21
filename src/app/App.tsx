@@ -165,8 +165,8 @@ const SCHEDULE = [
     type: "special",
   },
   {
-    time: "11:30 PM",
-    title: "Word Session I",
+    time: "11:30 AM",
+    title: "Exhortation",
     desc: "Bhanu Chand Alluri",
     type: "word",
   },

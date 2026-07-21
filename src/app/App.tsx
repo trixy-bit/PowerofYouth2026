@@ -160,8 +160,8 @@ const SCHEDULE = [
   },
   {
     time: "10:45 AM",
-    title: "Youth Panel Discussion",
-    desc: "Stories of transformation from young leaders",
+    title: "Testimonies",
+    desc: "Stories of transformation from young lives",
     type: "special",
   },
   {

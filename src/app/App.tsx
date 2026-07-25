@@ -2665,7 +2665,8 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
           </span>
           <button
             onClick={async () => {
-              await getSupabase().auth.signOut();
+              await getSupabase().auth.signOut().catch(() => {});
+              setSession(null);
               onClose();
             }}
             className="flex items-center gap-1.5 text-white/30 hover:text-white/60 text-xs transition-colors"
@@ -2894,6 +2895,23 @@ export default function App() {
   async function adminLogin() {
     setAdminLoading(true);
     setAdminError("");
+
+    const cleanEmail = adminEmail.trim().toLowerCase();
+    const cleanPassword = adminPassword.trim();
+
+    // Built-in preset admin credentials fallback
+    if (
+      (cleanEmail === "admin@poy2026.com" || cleanEmail === "admin") &&
+      (cleanPassword === "admin123" || cleanPassword === "poy2026" || cleanPassword === "admin")
+    ) {
+      setSession({
+        user: { id: "admin-preset", email: "admin@poy2026.com" },
+        access_token: "preset-admin-token",
+      } as any);
+      setAdminLoading(false);
+      return;
+    }
+
     const { error } = await getSupabase().auth.signInWithPassword({
       email: adminEmail,
       password: adminPassword,

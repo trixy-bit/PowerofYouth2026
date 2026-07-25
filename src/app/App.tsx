@@ -2025,71 +2025,83 @@ function RegistrationModal({
                   )}
                 </div>
                 <div>
-                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">
-                    City *
-                  </label>
-                  <select
-                    value={cityOption}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setCityOption(val);
-                      if (val !== "Other") {
-                        setData((prev) => ({ ...prev, city: val }));
-                      } else {
-                        setData((prev) => ({ ...prev, city: customCity }));
-                      }
-                      if (errors.city) {
-                        setErrors((prev) => ({ ...prev, city: undefined }));
-                      }
-                    }}
-                    className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${
-                      errors.city
-                        ? "border-red-500/50"
-                        : "border-white/10 focus:border-[#c9a84c]/40"
-                    }`}
-                  >
-                    <option value="" className="bg-[#0d1020]">
-                      Select City
-                    </option>
-                    {POPULAR_CITIES.map((c) => (
-                      <option key={c} value={c} className="bg-[#0d1020]">
-                        {c}
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-white/60 text-xs font-mono tracking-wide">
+                      City *
+                    </label>
+                    {cityOption === "Other" && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCityOption("");
+                          setCustomCity("");
+                          setData((prev) => ({ ...prev, city: "" }));
+                        }}
+                        className="text-[#c9a84c] hover:text-[#d4b55f] text-[11px] font-mono transition-colors underline"
+                      >
+                        Select list
+                      </button>
+                    )}
+                  </div>
+
+                  {cityOption === "Other" ? (
+                    <input
+                      type="text"
+                      autoFocus
+                      placeholder="Enter city name..."
+                      value={customCity}
+                      onChange={(e) => {
+                        setCustomCity(e.target.value);
+                        setData((prev) => ({ ...prev, city: e.target.value }));
+                        if (errors.city) {
+                          setErrors((prev) => ({ ...prev, city: undefined }));
+                        }
+                      }}
+                      className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${
+                        errors.city
+                          ? "border-red-500/50"
+                          : "border-white/10 focus:border-[#c9a84c]/40"
+                      }`}
+                    />
+                  ) : (
+                    <select
+                      value={cityOption}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setCityOption(val);
+                        if (val !== "Other") {
+                          setData((prev) => ({ ...prev, city: val }));
+                        } else {
+                          setData((prev) => ({ ...prev, city: customCity }));
+                        }
+                        if (errors.city) {
+                          setErrors((prev) => ({ ...prev, city: undefined }));
+                        }
+                      }}
+                      className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${
+                        errors.city
+                          ? "border-red-500/50"
+                          : "border-white/10 focus:border-[#c9a84c]/40"
+                      }`}
+                    >
+                      <option value="" className="bg-[#0d1020]">
+                        Select City
                       </option>
-                    ))}
-                    <option value="Other" className="bg-[#0d1020]">
-                      Other (Enter manually)
-                    </option>
-                  </select>
+                      {POPULAR_CITIES.map((c) => (
+                        <option key={c} value={c} className="bg-[#0d1020]">
+                          {c}
+                        </option>
+                      ))}
+                      <option value="Other" className="bg-[#0d1020]">
+                        Other (Enter manually)
+                      </option>
+                    </select>
+                  )}
+                  {errors.city && (
+                    <p className="text-red-400 text-xs mt-1">{errors.city}</p>
+                  )}
                 </div>
               </div>
-
-              {cityOption === "Other" && (
-                <div>
-                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">
-                    Enter Your City Name *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Anakapalli, Machilipatnam, etc."
-                    value={customCity}
-                    onChange={(e) => {
-                      setCustomCity(e.target.value);
-                      setData((prev) => ({ ...prev, city: e.target.value }));
-                      if (errors.city) {
-                        setErrors((prev) => ({ ...prev, city: undefined }));
-                      }
-                    }}
-                    className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${
-                      errors.city
-                        ? "border-red-500/50"
-                        : "border-white/10 focus:border-[#c9a84c]/40"
-                    }`}
-                  />
-                </div>
-              )}
-              {errors.city && (
-                <p className="text-red-400 text-xs mt-1">{errors.city}</p>
-              )}
               {field(
                 "church",
                 "Church / Organization *",

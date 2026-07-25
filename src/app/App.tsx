@@ -2,48 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { toPng, toBlob } from "html-to-image";
 
-const savePassAsImage = async (element: HTMLDivElement | null, id: string) => {
-  if (!element) return;
-  const fileName = `POY2026-Pass-${id || "pass"}.png`;
 
-  const options = {
-    pixelRatio: 2,
-    cacheBust: false,
-    fontEmbedCSS: "",
-    skipFonts: true,
-  };
-
-  try {
-    const dataUrl = await toPng(element, options);
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    return;
-  } catch (err) {
-    console.warn("toPng failed, trying toBlob fallback...", err);
-  }
-
-  try {
-    const blob = await toBlob(element, options);
-    if (blob) {
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
-      return;
-    }
-  } catch (e) {
-    console.error("toBlob failed:", e);
-    alert("Could not download automatically. Please take a screenshot of your pass!");
-  }
-};
 import QRCode from "react-qr-code";
 import type { Session } from "@supabase/supabase-js";
 import { getSupabase } from "@/supabase";
@@ -99,6 +58,125 @@ import {
   RefreshCw,
 } from "lucide-react";
 
+// ─── Pass Image Generator ─────────────────────────────────────────────────────
+
+const generatePassDataUrl = async (
+  element: HTMLDivElement | null,
+  id: string,
+  details?: { name?: string; church?: string; city?: string }
+): Promise<string> => {
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = 640;
+    canvas.height = 1136;
+    const ctx = canvas.getContext("2d");
+
+    if (ctx) {
+      // 1. Draw background image
+      const bgImg = new Image();
+      bgImg.crossOrigin = "anonymous";
+      bgImg.src = ticketTemplate;
+      await new Promise((resolve) => {
+        if (bgImg.complete) return resolve(true);
+        bgImg.onload = () => resolve(true);
+        bgImg.onerror = () => resolve(false);
+      });
+      ctx.drawImage(bgImg, 0, 0, 640, 1136);
+
+      // 2. Draw QR code from element if available
+      const svgElement = element?.querySelector("svg");
+      if (svgElement) {
+        const svgString = new XMLSerializer().serializeToString(svgElement);
+        const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(svgBlob);
+        const qrImg = new Image();
+        qrImg.src = url;
+        await new Promise((resolve) => {
+          qrImg.onload = () => resolve(true);
+          qrImg.onerror = () => resolve(false);
+        });
+
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        if (typeof (ctx as any).roundRect === "function") {
+          (ctx as any).roundRect(320 - 114, 436 - 14, 228, 228, 20);
+        } else {
+          ctx.rect(320 - 114, 436 - 14, 228, 228);
+        }
+        ctx.fill();
+        ctx.drawImage(qrImg, 320 - 100, 436, 200, 200);
+        URL.revokeObjectURL(url);
+      }
+
+      // 3. Draw participant text details
+      const name = details?.name || "";
+      const church = details?.church || "";
+      const city = details?.city || "";
+
+      if (name) {
+        const nameLen = name.trim().length;
+        const fontSize = nameLen > 22 ? 24 : nameLen > 16 ? 28 : 32;
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `bold ${fontSize}px 'Inter', sans-serif, Arial`;
+        ctx.textAlign = "center";
+        ctx.fillText(name.toUpperCase(), 320, 676);
+      }
+
+      if (church) {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+        ctx.font = `600 18px 'Inter', sans-serif, Arial`;
+        ctx.textAlign = "center";
+        const churchCity = `${church}${city ? ` - ${city}` : ""}`.toUpperCase();
+        ctx.fillText(churchCity, 320, 714);
+      }
+
+      if (id) {
+        ctx.fillStyle = "#e8c56c";
+        ctx.font = `bold 24px monospace`;
+        ctx.textAlign = "center";
+        ctx.fillText(id, 320, 748);
+      }
+
+      return canvas.toDataURL("image/png");
+    }
+  } catch (err) {
+    console.warn("Canvas pass rendering fallback...", err);
+  }
+
+  // Fallback to toPng
+  if (element) {
+    try {
+      return await toPng(element, { pixelRatio: 2, cacheBust: false, fontEmbedCSS: "", skipFonts: true });
+    } catch (e) {
+      console.error("toPng fallback failed:", e);
+    }
+  }
+  return "";
+};
+
+const savePassAsImage = async (
+  element: HTMLDivElement | null,
+  id: string,
+  details?: { name?: string; church?: string; city?: string }
+) => {
+  const fileName = `POY2026-Pass-${id || "pass"}.png`;
+  try {
+    const dataUrl = await generatePassDataUrl(element, id, details);
+    if (dataUrl) {
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return dataUrl;
+    }
+  } catch (err) {
+    console.error("savePassAsImage error:", err);
+  }
+  alert("Could not download automatically. Please take a screenshot of your pass!");
+};
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Registration {
   id: string;
@@ -125,9 +203,28 @@ interface CountdownValue {
 // ─── Constants ────────────────────────────────────────────────────────────────
 const EVENT_DATE = new Date("2026-08-15T09:30:00+05:30");
 
+const POPULAR_CITIES = [
+  "Vijayawada",
+  "Hyderabad",
+  "Visakhapatnam (Vizag)",
+  "Anakapalli",
+  "Guntur",
+  "Rajahmundry",
+  "Kakinada",
+  "Tirupati",
+  "Eluru",
+  "Nellore",
+  "Kurnool",
+  "Ongole",
+  "Tenali",
+  "Kadapa",
+  "Anantapur",
+  "Warangal",
+];
+
 const SPEAKERS = [
   {
-    name: "Bhanu Chand Alluri",
+    name: "Pas. Bhanu Chand Alluri",
     role: "Youth Evangelist",
     bio: "A passionate evangelist whose anointed ministry has touched thousands of young lives across Andhra Pradesh and Telangana with a message of hope and redemption.",
     image:
@@ -167,12 +264,12 @@ const SCHEDULE = [
   {
     time: "11:30 AM",
     title: "Exhortation",
-    desc: "Bhanu Chand Alluri",
-    type: "word",
+    desc: "Pas. Bhanu Chand Alluri",
+    type: "exhortation",
   },
   {
     time: "12:30 PM",
-    title: "Word Session II",
+    title: "Word Session",
     desc: "Rev. Sammy Thangaiah",
     type: "word",
   },
@@ -180,7 +277,7 @@ const SCHEDULE = [
     time: "1:45 PM",
     title: "Prayer & Intercession",
     desc: "prayer for the whole congregation",
-    type: "praye",
+    type: "prayer",
   },
 ];
 
@@ -785,7 +882,7 @@ function EventBanner({
           <div className="relative rounded-2xl md:rounded-3xl overflow-hidden border border-[#c9a84c]/20 shadow-[0_0_60px_rgba(201,168,76,0.12)]">
             <ImageWithFallback
               src={eventBanner}
-              alt="Power of Youth 2026 — Your Story Isn't Over. 15 Aug 2026, 9:30 AM. Maranatha Temple, Vijayawada. Featuring Bhanu Chand Alluri and Rev. Sammy Thangiah."
+              alt="Power of Youth 2026 — Your Story Isn't Over. 15 Aug 2026, 9:30 AM. Maranatha Temple, Vijayawada. Featuring Pas. Bhanu Chand Alluri and Rev. Sammy Thangiah."
               className="w-full h-auto object-cover block"
             />
 
@@ -1028,17 +1125,23 @@ function Schedule() {
     worship:
       "bg-purple-500/20 text-purple-300 border-purple-500/30",
     word: "bg-[#c9a84c]/20 text-[#c9a84c] border-[#c9a84c]/30",
+    exhortation:
+      "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
     logistics:
       "bg-blue-500/20 text-blue-300 border-blue-500/30",
     special:
       "bg-[#e8914a]/20 text-[#e8914a] border-[#e8914a]/30",
+    prayer:
+      "bg-rose-500/20 text-rose-300 border-rose-500/30",
   };
 
   const typeLabels: Record<string, string> = {
     worship: "Worship",
     word: "Word",
+    exhortation: "Exhortation",
     logistics: "Info",
     special: "Special",
+    prayer: "Prayer",
   };
 
   return (
@@ -1489,7 +1592,7 @@ function EventPassCard({
       ref={cardRef as any}
       style={{
         width: "320px",
-        height: "601px",
+        height: "568px",
         margin: "0 auto",
         position: "relative",
         overflow: "hidden",
@@ -1515,86 +1618,46 @@ function EventPassCard({
         }}
       />
 
-      {/* ── QR Code Section (zIndex: 1) ── */}
+      {/* ── QR Code — centered in the empty dark area ── */}
       <div
         style={{
           position: "absolute",
-          top: "165px",
+          top: "218px",
           left: "50%",
           transform: "translateX(-50%)",
           background: "#ffffff",
-          padding: "8px",
-          borderRadius: "12px",
+          padding: "7px",
+          borderRadius: "10px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
           zIndex: 1,
           boxSizing: "border-box",
         }}
       >
         <QRCode
           value={registrationId}
-          size={120}
-          style={{ height: "120px", width: "120px" }}
+          size={100}
+          style={{ height: "100px", width: "100px", display: "block" }}
           bgColor="#ffffff"
           fgColor="#000000"
           level="M"
         />
       </div>
 
-      {/* ── EVENT PASS Label ── */}
-      <div
-        style={{
-          position: "absolute",
-          top: "330px",
-          width: "100%",
-          textAlign: "center",
-          color: "#e8c56c",
-          fontSize: "10px",
-          fontWeight: 600,
-          letterSpacing: "1.5px",
-          textTransform: "uppercase",
-          zIndex: 1,
-          boxSizing: "border-box",
-        }}
-      >
-        Event Pass
-      </div>
-
-      {/* ── Diamond Separator ── */}
-      <div
-        style={{
-          position: "absolute",
-          top: "345px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          color: "#e8c56c",
-          zIndex: 1,
-          boxSizing: "border-box",
-        }}
-      >
-        <div style={{ width: "30px", height: "1px", background: "linear-gradient(90deg, transparent, #e8c56c)" }} />
-        <div style={{ fontSize: "6px" }}>◆</div>
-        <div style={{ width: "30px", height: "1px", background: "linear-gradient(90deg, #e8c56c, transparent)" }} />
-      </div>
-
       {/* ── Name ── */}
       <div
         style={{
           position: "absolute",
-          top: "360px",
+          top: "338px",
           width: "100%",
           padding: "0 16px",
           textAlign: "center",
           color: "#ffffff",
           fontSize: nameFontSize,
           fontWeight: "bold",
-          fontFamily: "'Playfair Display', serif",
-          letterSpacing: "0.5px",
+          letterSpacing: "1px",
           textTransform: "uppercase",
           zIndex: 1,
           whiteSpace: "nowrap",
@@ -1610,14 +1673,14 @@ function EventPassCard({
       <div
         style={{
           position: "absolute",
-          top: "386px",
+          top: "357px",
           width: "100%",
           padding: "0 16px",
           textAlign: "center",
-          color: "rgba(255,255,255,0.55)",
-          fontSize: "10px",
+          color: "rgba(255,255,255,0.6)",
+          fontSize: "9px",
           fontWeight: 600,
-          letterSpacing: "0.5px",
+          letterSpacing: "0.8px",
           textTransform: "uppercase",
           zIndex: 1,
           whiteSpace: "nowrap",
@@ -1626,19 +1689,19 @@ function EventPassCard({
           boxSizing: "border-box",
         }}
       >
-        {church} • {city}
+        {church}{city ? ` - ${city}` : ""}
       </div>
 
       {/* ── Registration ID ── */}
       <div
         style={{
           position: "absolute",
-          top: "408px",
+          top: "374px",
           width: "100%",
           padding: "0 16px",
           textAlign: "center",
           color: "#e8c56c",
-          fontSize: "11px",
+          fontSize: "12px",
           fontFamily: "monospace",
           fontWeight: "bold",
           letterSpacing: "2px",
@@ -1683,7 +1746,11 @@ function RegistrationModal({
   const passRef = useRef<HTMLDivElement>(null);
 
   const downloadPass = async () => {
-    await savePassAsImage(passRef.current, regId);
+    await savePassAsImage(passRef.current, regId, {
+      name: data.name,
+      church: data.church,
+      city: data.city,
+    });
   };
   const [data, setData] = useState<FormData>({
     name: "",
@@ -1696,22 +1763,23 @@ function RegistrationModal({
     prayer_requests: "",
     agree: false,
   });
+  const [cityOption, setCityOption] = useState<string>("");
+  const [customCity, setCustomCity] = useState<string>("");
   const [errors, setErrors] = useState<Partial<FormData>>({});
 
   useEffect(() => {
     if (step === "success" && regId && data.email) {
       const sendEmail = async () => {
-        // Wait for the pass element to render fully in the DOM
-        await new Promise((resolve) => setTimeout(resolve, 800));
-        if (!passRef.current) return;
+        // Wait briefly for the pass element & QR code SVG to mount
+        await new Promise((resolve) => setTimeout(resolve, 500));
         try {
-          const dataUrl = await toPng(passRef.current, {
-            cacheBust: false,
-            pixelRatio: 2,
-            fontEmbedCSS: "",
-            skipFonts: true,
+          const dataUrl = await generatePassDataUrl(passRef.current, regId, {
+            name: data.name,
+            church: data.church,
+            city: data.city,
           });
-          const base64Data = dataUrl.split(",")[1];
+          if (!dataUrl) return;
+          const base64Data = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
           await getSupabase().functions.invoke("send-ticket", {
             body: {
               email: data.email.trim().toLowerCase(),
@@ -1956,8 +2024,72 @@ function RegistrationModal({
                     </p>
                   )}
                 </div>
-                {field("city", "City *", "text", "Vijayawada")}
+                <div>
+                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">
+                    City *
+                  </label>
+                  <select
+                    value={cityOption}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCityOption(val);
+                      if (val !== "Other") {
+                        setData((prev) => ({ ...prev, city: val }));
+                      } else {
+                        setData((prev) => ({ ...prev, city: customCity }));
+                      }
+                      if (errors.city) {
+                        setErrors((prev) => ({ ...prev, city: undefined }));
+                      }
+                    }}
+                    className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${
+                      errors.city
+                        ? "border-red-500/50"
+                        : "border-white/10 focus:border-[#c9a84c]/40"
+                    }`}
+                  >
+                    <option value="" className="bg-[#0d1020]">
+                      Select City
+                    </option>
+                    {POPULAR_CITIES.map((c) => (
+                      <option key={c} value={c} className="bg-[#0d1020]">
+                        {c}
+                      </option>
+                    ))}
+                    <option value="Other" className="bg-[#0d1020]">
+                      Other (Enter manually)
+                    </option>
+                  </select>
+                </div>
               </div>
+
+              {cityOption === "Other" && (
+                <div>
+                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">
+                    Enter Your City Name *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Anakapalli, Machilipatnam, etc."
+                    value={customCity}
+                    onChange={(e) => {
+                      setCustomCity(e.target.value);
+                      setData((prev) => ({ ...prev, city: e.target.value }));
+                      if (errors.city) {
+                        setErrors((prev) => ({ ...prev, city: undefined }));
+                      }
+                    }}
+                    className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${
+                      errors.city
+                        ? "border-red-500/50"
+                        : "border-white/10 focus:border-[#c9a84c]/40"
+                    }`}
+                  />
+                </div>
+              )}
+              {errors.city && (
+                <p className="text-red-400 text-xs mt-1">{errors.city}</p>
+              )}
               {field(
                 "church",
                 "Church / Organization *",
@@ -2152,6 +2284,34 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
     }
     setScanInput("");
     setTimeout(() => setScanResult(null), 4000);
+  };
+
+  const [sendingId, setSendingId] = useState<string | null>(null);
+
+  const resendAdminPassEmail = async (r: Registration) => {
+    setSendingId(r.id);
+    try {
+      const dataUrl = await generatePassDataUrl(null, r.id, {
+        name: r.name,
+        church: r.church,
+        city: r.city,
+      });
+      const base64Data = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
+      await getSupabase().functions.invoke("send-ticket", {
+        body: {
+          email: r.email.trim().toLowerCase(),
+          name: r.name,
+          registrationId: r.id,
+          image: base64Data,
+        },
+      });
+      alert(`Pass email sent successfully to ${r.email}`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send pass email.");
+    } finally {
+      setSendingId(null);
+    }
   };
 
   const filtered = regs.filter(
@@ -2371,20 +2531,31 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
                             {r.id}
                           </p>
                         </div>
-                        <button
-                          onClick={() =>
-                            toggleAttendance(r.id, r.attended)
-                          }
-                          className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-mono transition-colors ${
-                            r.attended
-                              ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                              : "bg-white/10 text-white/40 border border-white/10 hover:border-[#c9a84c]/30"
-                          }`}
-                        >
-                          {r.attended
-                            ? "✓ Attended"
-                            : "Mark Present"}
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => resendAdminPassEmail(r)}
+                            disabled={sendingId === r.id}
+                            className="shrink-0 px-2.5 py-1.5 rounded-xl text-xs bg-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/20 hover:bg-[#c9a84c]/20 transition-colors flex items-center gap-1 disabled:opacity-50"
+                            title="Resend pass email to user"
+                          >
+                            <Mail className="w-3.5 h-3.5" />
+                            {sendingId === r.id ? "Sending..." : "Resend Email"}
+                          </button>
+                          <button
+                            onClick={() =>
+                              toggleAttendance(r.id, r.attended)
+                            }
+                            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-mono transition-colors ${
+                              r.attended
+                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                : "bg-white/10 text-white/40 border border-white/10 hover:border-[#c9a84c]/30"
+                            }`}
+                          >
+                            {r.attended
+                              ? "✓ Attended"
+                              : "Mark Present"}
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -3366,10 +3537,57 @@ function RetrieveModal({
     }
   };
 
+  const [emailStatus, setEmailStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  const sendPassEmail = async (regObj = registration) => {
+    if (!regObj) return;
+    try {
+      setEmailStatus("sending");
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const dataUrl = await generatePassDataUrl(passRef.current, regObj.id, {
+        name: regObj.name,
+        church: regObj.church,
+        city: regObj.city,
+      });
+      if (!dataUrl) {
+        setEmailStatus("error");
+        return;
+      }
+      const base64Data = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
+      const { error } = await getSupabase().functions.invoke("send-ticket", {
+        body: {
+          email: regObj.email.trim().toLowerCase(),
+          name: regObj.name,
+          registrationId: regObj.id,
+          image: base64Data,
+        },
+      });
+      if (!error) {
+        setEmailStatus("sent");
+      } else {
+        setEmailStatus("error");
+      }
+    } catch (err) {
+      console.error("Error sending pass email:", err);
+      setEmailStatus("error");
+    }
+  };
+
+  useEffect(() => {
+    if (step === "pass" && registration) {
+      sendPassEmail(registration);
+    }
+  }, [step, registration]);
+
   const downloadPass = async () => {
+    if (!registration) return;
     try {
       setLoading(true);
-      await savePassAsImage(passRef.current, registration?.id || "pass");
+      await savePassAsImage(passRef.current, registration.id, {
+        name: registration.name,
+        church: registration.church,
+        city: registration.city,
+      });
     } finally {
       setLoading(false);
     }
@@ -3495,10 +3713,34 @@ function RetrieveModal({
                   />
                 </div>
 
+                {/* Email Delivery Status & Resend Button */}
+                <div className="bg-white/5 border border-white/10 rounded-xl p-3 text-xs max-w-[340px] mx-auto flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-white/70 overflow-hidden">
+                    <Mail className="w-4 h-4 text-[#c9a84c] shrink-0" />
+                    <span className="truncate">
+                      {emailStatus === "sending"
+                        ? "Sending pass to email..."
+                        : emailStatus === "sent"
+                        ? "Pass emailed successfully!"
+                        : emailStatus === "error"
+                        ? "Failed to email pass"
+                        : `Pass ready for ${registration.email}`}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => sendPassEmail(registration)}
+                    disabled={emailStatus === "sending"}
+                    className="px-2.5 py-1 text-[11px] bg-[#c9a84c]/20 text-[#c9a84c] border border-[#c9a84c]/30 rounded-lg font-semibold hover:bg-[#c9a84c]/30 transition-colors shrink-0 disabled:opacity-50"
+                  >
+                    {emailStatus === "sending" ? "Sending..." : "Resend"}
+                  </button>
+                </div>
+
                 <div className="flex gap-3 max-w-[340px] mx-auto">
                   <button
                     type="button"
-                    onClick={() => { setStep("lookup"); setRegistration(null); setOtp(""); }}
+                    onClick={() => { setStep("lookup"); setRegistration(null); setOtp(""); setEmailStatus("idle"); }}
                     className="flex-1 py-3 border border-white/10 text-white/70 rounded-xl text-sm hover:border-white/20 transition-colors"
                   >
                     Back

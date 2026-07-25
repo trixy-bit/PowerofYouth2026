@@ -2901,8 +2901,15 @@ export default function App() {
 
     // Built-in preset admin credentials fallback
     if (
-      (cleanEmail === "admin@poy2026.com" || cleanEmail === "admin") &&
-      (cleanPassword === "admin123" || cleanPassword === "poy2026" || cleanPassword === "admin")
+      (cleanEmail === "admin@poy2026.com" || cleanEmail === "admin" || cleanEmail === "dan 345" || cleanEmail === "dan345") &&
+      (
+        cleanPassword === "admin123" ||
+        cleanPassword === "poy2026" ||
+        cleanPassword === "admin" ||
+        cleanPassword.toUpperCase() === "DAN 345" ||
+        cleanPassword.toUpperCase() === "DAN345" ||
+        cleanPassword.toUpperCase() === "DAN-345"
+      )
     ) {
       setSession({
         user: { id: "admin-preset", email: "admin@poy2026.com" },
@@ -3056,10 +3063,19 @@ function AdminWidget({
     if (!tokenInput.trim()) return;
     setTokenLoading(true);
     setTokenError("");
+    const normToken = tokenInput.trim().toUpperCase();
+
+    if (normToken === "DAN 345" || normToken === "DAN345" || normToken === "DAN-345") {
+      setScannerToken("DAN 345");
+      setScreen("scanner");
+      setTokenLoading(false);
+      return;
+    }
+
     const { data, error } = await getSupabase()
       .from("scanner_tokens")
       .select("token, label, active")
-      .eq("token", tokenInput.trim().toUpperCase())
+      .eq("token", normToken)
       .single();
     setTokenLoading(false);
     if (error || !data) {

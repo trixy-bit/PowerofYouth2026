@@ -1766,33 +1766,48 @@ function RegistrationModal({
   const [cityOption, setCityOption] = useState<string>("");
   const [customCity, setCustomCity] = useState<string>("");
   const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (step === "success" && regId && data.email) {
-      const sendEmail = async () => {
+      const sendEmailWithRetry = async () => {
         // Wait briefly for the pass element & QR code SVG to mount
         await new Promise((resolve) => setTimeout(resolve, 500));
-        try {
-          const dataUrl = await generatePassDataUrl(passRef.current, regId, {
-            name: data.name,
-            church: data.church,
-            city: data.city,
-          });
-          if (!dataUrl) return;
-          const base64Data = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
-          await getSupabase().functions.invoke("send-ticket", {
-            body: {
-              email: data.email.trim().toLowerCase(),
+        let lastErr: unknown;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            const dataUrl = await generatePassDataUrl(passRef.current, regId, {
               name: data.name,
-              registrationId: regId,
-              image: base64Data,
-            },
-          });
-        } catch (err) {
-          console.error("Failed to send ticket email:", err);
+              church: data.church,
+              city: data.city,
+            });
+            if (!dataUrl) return;
+            const base64Data = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
+            const { error: fnError } = await getSupabase().functions.invoke("send-ticket", {
+              body: {
+                email: data.email.trim().toLowerCase(),
+                name: data.name,
+                registrationId: regId,
+                image: base64Data,
+              },
+            });
+            if (!fnError) {
+              console.log(`✅ Ticket email sent (attempt ${attempt})`);
+              return; // success — stop retrying
+            }
+            lastErr = fnError;
+          } catch (err) {
+            lastErr = err;
+          }
+          if (attempt < 3) {
+            // Exponential back-off: 2s, 4s
+            await new Promise((r) => setTimeout(r, attempt * 2000));
+          }
         }
+        // All 3 attempts failed — log silently, don't block the user
+        console.error("Failed to send ticket email after 3 attempts:", lastErr);
       };
-      sendEmail();
+      sendEmailWithRetry();
     }
   }, [step, regId]);
 
@@ -1814,6 +1829,7 @@ function RegistrationModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    setSubmitError(null);
     setLoading(true);
 
     // ── Duplicate check: email ──
@@ -1859,8 +1875,15 @@ function RegistrationModal({
       });
     setLoading(false);
     if (error) {
-      console.error(error);
-      alert(JSON.stringify(error, null, 2));
+      console.error("Registration DB error:", error);
+      // Show a friendly in-form error instead of a raw alert
+      const msg =
+        error.code === "23505"
+          ? "You appear to be already registered. Use \"Already Registered?\" to retrieve your pass."
+          : error.message?.includes("network")
+          ? "Connection error. Please check your internet and try again."
+          : "Registration failed — please try again. If the issue persists, contact the event team.";
+      setSubmitError(msg);
       return;
     }
     setRegId(id);
@@ -2150,6 +2173,17 @@ function RegistrationModal({
                 <p className="text-red-400 text-xs">
                   {errors.agree}
                 </p>
+              )}
+
+              {/* ── Submit Error Banner ── */}
+              {submitError && (
+                <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
+                  <span className="text-red-400 text-lg leading-none mt-0.5">⚠</span>
+                  <div>
+                    <p className="text-red-400 text-xs font-semibold mb-0.5">Registration Failed</p>
+                    <p className="text-red-400/80 text-xs leading-relaxed">{submitError}</p>
+                  </div>
+                </div>
               )}
 
               <button

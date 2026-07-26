@@ -94,8 +94,8 @@ const generatePassDataUrl = async (
       const qrBoxSize = 228;
       const radius = 20;
 
-      // Draw dark translucent glass container
-      ctx.fillStyle = "rgba(8, 14, 18, 0.85)";
+      // Draw white background behind QR for scannability
+      ctx.fillStyle = "#ffffff";
       ctx.beginPath();
       if (typeof (ctx as any).roundRect === "function") {
         (ctx as any).roundRect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize, radius);
@@ -104,17 +104,19 @@ const generatePassDataUrl = async (
       }
       ctx.fill();
 
-      // Draw subtle gold accent border around QR box
-      ctx.strokeStyle = "rgba(201, 168, 76, 0.5)";
+      // Draw gold accent border around QR box
+      ctx.strokeStyle = "rgba(201, 168, 76, 0.7)";
       ctx.lineWidth = 3;
       ctx.stroke();
 
       const svgElement = element?.querySelector("svg");
       if (svgElement) {
-        // Remove background path/rect so QR is transparent on the canvas
+        // Remove background rects so QR renders black on the white canvas box
         let svgString = new XMLSerializer().serializeToString(svgElement);
         svgString = svgString.replace(/<path[^>]*fill="transparent"[^>]*><\/path>/gi, "");
-        svgString = svgString.replace(/<rect[^>]*>/gi, "");
+        svgString = svgString.replace(/<rect[^>]*fill="white"[^>]*>/gi, "");
+        // Force QR dots to black
+        svgString = svgString.replace(/fill="#ffffff"/gi, 'fill="#000000"');
         const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
         const url = URL.createObjectURL(svgBlob);
         const qrImg = new Image();
@@ -1698,22 +1700,21 @@ function EventPassCard({
         }}
       />
 
-      {/* ── QR Code — centered with dark glass & gold border ── */}
+      {/* ── QR Code — white background for maximum scannability ── */}
       <div
         style={{
           position: "absolute",
           top: "218px",
           left: "50%",
           transform: "translateX(-50%)",
-          background: "rgba(8, 14, 18, 0.8)",
-          backdropFilter: "blur(12px)",
-          border: "1.5px solid rgba(201, 168, 76, 0.45)",
-          padding: "10px",
-          borderRadius: "14px",
+          background: "#ffffff",
+          border: "2px solid rgba(201, 168, 76, 0.6)",
+          padding: "8px",
+          borderRadius: "12px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.6), inset 0 0 12px rgba(201,168,76,0.15)",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
           zIndex: 1,
           boxSizing: "border-box",
         }}
@@ -1722,8 +1723,8 @@ function EventPassCard({
           value={registrationId}
           size={100}
           style={{ height: "100px", width: "100px", display: "block" }}
-          bgColor="transparent"
-          fgColor="#ffffff"
+          bgColor="#ffffff"
+          fgColor="#000000"
           level="M"
         />
       </div>

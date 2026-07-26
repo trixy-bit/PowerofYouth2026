@@ -370,9 +370,6 @@ const GALLERY_IMAGES = [
   { image: poy4, alt: "Youth worshipping" },
   { image: poy5, alt: "Youth conference gathering" },
   { image: poy6, alt: "Event stage lights" },
-  { image: poy7, alt: "Audience praising" },
-  { image: poy8, alt: "Youth celebration" },
-  { image: poy9, alt: "Prayer and fellowship" },
 ];
 
 // ─── Utilities ────────────────────────────────────────────────────────────────

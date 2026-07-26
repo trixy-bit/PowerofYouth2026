@@ -3022,10 +3022,16 @@ export default function App() {
     const cleanEmail = adminEmail.trim();
     const cleanPassword = adminPassword.trim();
 
-    // Check updated built-in preset admin credentials
+    if (!cleanEmail || !cleanPassword) {
+      setAdminError("Please enter both email and password.");
+      setAdminLoading(false);
+      return;
+    }
+
+    // Only allow preset admin credentials — no Supabase auth fallback
     if (validateAdminCredentials(cleanEmail, cleanPassword)) {
       setSession({
-        user: { id: "admin-preset", email: cleanEmail || "admin@poy2026.org" },
+        user: { id: "admin-preset", email: cleanEmail },
         access_token: "preset-admin-token",
       } as any);
       setAdminLoading(false);
@@ -3033,15 +3039,9 @@ export default function App() {
       return;
     }
 
-    const { error } = await getSupabase().auth.signInWithPassword({
-      email: adminEmail,
-      password: adminPassword,
-    });
-    if (error) {
-      setAdminError(error.message || "Invalid email or password");
-    } else {
-      setAdminPassword("");
-    }
+    // Credentials don't match — reject immediately
+    setAdminError("Invalid email or password. Access denied.");
+    setAdminPassword("");
     setAdminLoading(false);
   }
 

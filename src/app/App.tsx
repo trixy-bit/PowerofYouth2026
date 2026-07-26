@@ -1898,8 +1898,19 @@ function RegistrationModal({
     if (!data.name.trim()) e.name = "Required";
     if (!data.email.includes("@"))
       e.email = "Valid email required";
-    if (data.phone.length < 10)
-      e.phone = "Valid phone required";
+    
+    // Phone validation
+    const cleanPhone = data.phone.trim();
+    if (!cleanPhone) {
+      e.phone = "Phone number is required";
+    } else if (cleanPhone.length < 10) {
+      e.phone = "Must be a 10-digit phone number";
+    } else if (!/^\d{10}$/.test(cleanPhone)) {
+      e.phone = "Please enter 10 digits only";
+    } else if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      e.phone = "Enter a valid 10-digit mobile number (starts with 6-9)";
+    }
+
     if (!data.age) e.age = "Required";
     if (!data.church.trim()) e.church = "Required";
     if (!data.city.trim()) e.city = "Required";
@@ -2001,9 +2012,22 @@ function RegistrationModal({
           type={type}
           placeholder={placeholder}
           value={data[key] as string}
-          onChange={(e) =>
-            setData({ ...data, [key]: e.target.value })
-          }
+          onChange={(e) => {
+            if (key === "phone") {
+              const cleaned = e.target.value.replace(/\D/g, "").slice(0, 10);
+              setData((prev) => ({ ...prev, phone: cleaned }));
+              if (errors.phone) {
+                if (/^[6-9]\d{9}$/.test(cleaned) || cleaned.length === 10) {
+                  setErrors((prev) => ({ ...prev, phone: undefined }));
+                }
+              }
+            } else {
+              setData({ ...data, [key]: e.target.value });
+            }
+          }}
+          inputMode={key === "phone" ? "numeric" : undefined}
+          pattern={key === "phone" ? "[0-9]*" : undefined}
+          maxLength={key === "phone" ? 10 : undefined}
           className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${
             errors[key]
               ? "border-red-500/50"
@@ -2076,7 +2100,7 @@ function RegistrationModal({
                   "phone",
                   "Phone Number *",
                   "tel",
-                  "",
+                  "10-digit number",
                 )}
               </div>
               <div className="grid grid-cols-2 gap-3">

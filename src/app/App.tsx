@@ -90,7 +90,7 @@ const generatePassDataUrl = async (
 
       // 2. Draw QR code background container & QR code
       const qrBoxX = 320 - 114;
-      const qrBoxY = 436 - 14;
+      const qrBoxY = 436 - 14 - 19;
       const qrBoxSize = 228;
       const radius = 20;
 
@@ -124,7 +124,7 @@ const generatePassDataUrl = async (
           qrImg.onerror = () => resolve(false);
         });
 
-        ctx.drawImage(qrImg, 320 - 100, 436, 200, 200);
+        ctx.drawImage(qrImg, 320 - 100, 436 - 19, 200, 200);
         URL.revokeObjectURL(url);
       }
 

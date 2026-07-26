@@ -3302,6 +3302,7 @@ function AdminWidget({
 
         {screen === "scanner" && (
           <ScannerScreen
+            allowTestMode={!!session}
             onClose={() => {
               if (!session) { setScannerToken(null); setScreen("login"); }
               else setScreen("dashboard");
@@ -3327,13 +3328,14 @@ function AdminWidget({
 
 // ─── Camera Scanner Screen ─────────────────────────────────────────────────────
 
-function ScannerScreen({ onClose }: { onClose: () => void }) {
+function ScannerScreen({ onClose, allowTestMode = false }: { onClose: () => void; allowTestMode?: boolean }) {
   const scannerRef = useRef<HTMLDivElement>(null);
   const scannerInstance = useRef<any>(null);
   const [scanResult, setScanResult] = useState<{ ok: boolean; msg: string } | null>(null);
   const [processing, setProcessing] = useState(false);
   const [cameraError, setCameraError] = useState("");
   const [manualId, setManualId] = useState("");
+  const [testMode, setTestMode] = useState(false);
 
   async function processId(rawId: string) {
     if (processing) return;
@@ -3341,13 +3343,16 @@ function ScannerScreen({ onClose }: { onClose: () => void }) {
     if (!id) return;
 
     // ── Date gate: attendance only allowed on 15 Aug 2026 ──
-    const now = new Date();
-    const eventDay = new Date("2026-08-15T00:00:00+05:30");
-    const eventDayEnd = new Date("2026-08-16T00:00:00+05:30");
-    if (now < eventDay || now >= eventDayEnd) {
-      setScanResult({ ok: false, msg: "🔒 Check-in is only allowed on 15 August 2026." });
-      setTimeout(() => setScanResult(null), 5000);
-      return;
+    // Skip date gate if test mode is enabled (admin only)
+    if (!testMode) {
+      const now = new Date();
+      const eventDay = new Date("2026-08-15T00:00:00+05:30");
+      const eventDayEnd = new Date("2026-08-16T00:00:00+05:30");
+      if (now < eventDay || now >= eventDayEnd) {
+        setScanResult({ ok: false, msg: "🔒 Check-in is only allowed on 15 August 2026." });
+        setTimeout(() => setScanResult(null), 5000);
+        return;
+      }
     }
 
     setProcessing(true);
@@ -3398,8 +3403,27 @@ function ScannerScreen({ onClose }: { onClose: () => void }) {
     <div className="p-3 space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-white/60 text-xs font-semibold">QR Check-In Scanner</span>
-        <button onClick={onClose} className="text-white/30 hover:text-white text-[10px] font-mono">← Back</button>
+        <div className="flex items-center gap-2">
+          {allowTestMode && (
+            <button
+              onClick={() => setTestMode(prev => !prev)}
+              className={`text-[10px] font-mono px-2 py-1 rounded border transition-colors ${
+                testMode
+                  ? "bg-yellow-500/20 border-yellow-500/40 text-yellow-400"
+                  : "bg-white/5 border-white/10 text-white/30 hover:text-white/60"
+              }`}
+            >
+              {testMode ? "🧪 TEST MODE ON" : "TEST MODE"}
+            </button>
+          )}
+          <button onClick={onClose} className="text-white/30 hover:text-white text-[10px] font-mono">← Back</button>
+        </div>
       </div>
+      {testMode && (
+        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-3 py-1.5 text-yellow-400 text-[10px] font-mono text-center">
+          ⚠️ Test mode active — date lock bypassed. Scans mark attendance in database.
+        </div>
+      )}
       {cameraError ? (
         <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-red-400 text-xs text-center">
           {cameraError}<br/>

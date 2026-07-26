@@ -3665,9 +3665,15 @@ function RetrieveModal({
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [step, setStep] = useState<"lookup" | "otp" | "pass">("lookup");
+  const [step, setStep] = useState<"lookup" | "otp" | "pass" | "edit">("lookup");
   const [registration, setRegistration] = useState<Registration | null>(null);
   const passRef = useRef<HTMLDivElement>(null);
+
+  // Edit form state
+  const [editData, setEditData] = useState<Partial<Registration>>({});
+  const [editErrors, setEditErrors] = useState<Partial<Record<string, string>>>({});
+  const [editSaving, setEditSaving] = useState(false);
+  const [editSuccess, setEditSuccess] = useState(false);
 
   const sendOtp = async () => {
     setMessage("");
@@ -3802,7 +3808,7 @@ function RetrieveModal({
             <div>
               <SectionLabel>Ticket Retrieval</SectionLabel>
               <h2 className="font-['Playfair_Display'] text-xl font-bold text-white">
-                {step === "lookup" ? "Retrieve Your Pass" : step === "otp" ? "Verify OTP" : "Your Event Pass"}
+                {step === "lookup" ? "Retrieve Your Pass" : step === "otp" ? "Verify OTP" : step === "edit" ? "Edit Your Response" : "Your Event Pass"}
               </h2>
             </div>
             <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
@@ -3892,8 +3898,8 @@ function RetrieveModal({
                 </button>
               </div>
             </div>
-          ) : (
-            registration && (
+          ) : step === "pass" ? (
+            registration ? (
               <div className="space-y-6 text-center">
                 <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-1">
                   <CheckCircle className="w-5 h-5 text-green-400" />
@@ -3936,27 +3942,209 @@ function RetrieveModal({
                   </button>
                 </div>
 
-                <div className="flex gap-3 max-w-[340px] mx-auto">
+                <div className="flex flex-col gap-2 max-w-[340px] mx-auto">
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => { setStep("lookup"); setRegistration(null); setOtp(""); setEmailStatus("idle"); }}
+                      className="flex-1 py-3 border border-white/10 text-white/70 rounded-xl text-sm hover:border-white/20 transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={downloadPass}
+                      disabled={loading}
+                      className="flex-1 py-3 bg-[#c9a84c] text-[#07090f] font-bold rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-[#d4b55f] transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      Download Pass
+                    </button>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => { setStep("lookup"); setRegistration(null); setOtp(""); setEmailStatus("idle"); }}
-                    className="flex-1 py-3 border border-white/10 text-white/70 rounded-xl text-sm hover:border-white/20 transition-colors"
+                    onClick={() => {
+                      setEditData({
+                        name: registration.name,
+                        phone: registration.phone,
+                        age: registration.age,
+                        church: registration.church,
+                        city: registration.city,
+                        questions: registration.questions || "",
+                        prayer_requests: registration.prayer_requests || "",
+                      });
+                      setEditErrors({});
+                      setEditSuccess(false);
+                      setStep("edit");
+                    }}
+                    className="w-full py-3 border border-[#c9a84c]/40 text-[#c9a84c] rounded-xl text-sm font-semibold hover:bg-[#c9a84c]/10 transition-colors flex items-center justify-center gap-2"
                   >
-                    Back
-                  </button>
-                  <button
-                    type="button"
-                    onClick={downloadPass}
-                    disabled={loading}
-                    className="flex-1 py-3 bg-[#c9a84c] text-[#07090f] font-bold rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-[#d4b55f] transition-colors"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download Pass
+                    ✏️ Edit Your Response
                   </button>
                 </div>
               </div>
-            )
-          )}
+            ) : null
+          ) : step === "edit" && registration ? (
+            <div className="space-y-4">
+              <p className="text-white/50 text-xs">
+                Update your registration details below. Your name and email cannot be changed.
+              </p>
+
+              {/* Read-only fields */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">Full Name</label>
+                  <div className="w-full bg-white/3 border border-white/5 rounded-xl px-4 py-3 text-white/40 text-sm">{registration.name}</div>
+                </div>
+                <div>
+                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">Email</label>
+                  <div className="w-full bg-white/3 border border-white/5 rounded-xl px-4 py-3 text-white/40 text-sm truncate">{registration.email}</div>
+                </div>
+              </div>
+
+              {/* Editable: Phone */}
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">Phone Number</label>
+                <input
+                  type="tel"
+                  placeholder="10-digit number"
+                  value={editData.phone || ""}
+                  maxLength={10}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  onChange={e => {
+                    const cleaned = e.target.value.replace(/\D/g, "").slice(0, 10);
+                    setEditData(prev => ({ ...prev, phone: cleaned }));
+                    if (editErrors.phone && /^[6-9]\d{9}$/.test(cleaned)) setEditErrors(prev => ({ ...prev, phone: undefined }));
+                  }}
+                  className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${editErrors.phone ? "border-red-500/50" : "border-white/10 focus:border-[#c9a84c]/40"}`}
+                />
+                {editErrors.phone && <p className="text-red-400 text-xs mt-1">{editErrors.phone}</p>}
+              </div>
+
+              {/* Editable: Age Group */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">Age Group</label>
+                  <select
+                    value={editData.age || ""}
+                    onChange={e => setEditData(prev => ({ ...prev, age: e.target.value }))}
+                    className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${editErrors.age ? "border-red-500/50" : "border-white/10 focus:border-[#c9a84c]/40"}`}
+                  >
+                    <option value="" className="bg-[#0d1020]">Select age</option>
+                    <option value="13-17" className="bg-[#0d1020]">13–17 years</option>
+                    <option value="18-24" className="bg-[#0d1020]">18–24 years</option>
+                    <option value="25-35" className="bg-[#0d1020]">25–35 years</option>
+                    <option value="35+" className="bg-[#0d1020]">35+ years</option>
+                  </select>
+                  {editErrors.age && <p className="text-red-400 text-xs mt-1">{editErrors.age}</p>}
+                </div>
+                <div>
+                  <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">City</label>
+                  <input
+                    type="text"
+                    placeholder="Your city"
+                    value={editData.city || ""}
+                    onChange={e => setEditData(prev => ({ ...prev, city: e.target.value }))}
+                    className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${editErrors.city ? "border-red-500/50" : "border-white/10 focus:border-[#c9a84c]/40"}`}
+                  />
+                  {editErrors.city && <p className="text-red-400 text-xs mt-1">{editErrors.city}</p>}
+                </div>
+              </div>
+
+              {/* Editable: Church */}
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">Church</label>
+                <input
+                  type="text"
+                  placeholder="Your church name"
+                  value={editData.church || ""}
+                  onChange={e => setEditData(prev => ({ ...prev, church: e.target.value }))}
+                  className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${editErrors.church ? "border-red-500/50" : "border-white/10 focus:border-[#c9a84c]/40"}`}
+                />
+                {editErrors.church && <p className="text-red-400 text-xs mt-1">{editErrors.church}</p>}
+              </div>
+
+              {/* Optional: Questions & Prayer Requests */}
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">Questions (optional)</label>
+                <textarea
+                  placeholder="Any questions you have..."
+                  value={editData.questions || ""}
+                  onChange={e => setEditData(prev => ({ ...prev, questions: e.target.value }))}
+                  rows={2}
+                  className="w-full bg-white/6 border border-white/10 focus:border-[#c9a84c]/40 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all resize-none"
+                />
+              </div>
+              <div>
+                <label className="block text-white/60 text-xs mb-1.5 font-mono tracking-wide">Prayer Requests (optional)</label>
+                <textarea
+                  placeholder="Share your prayer requests..."
+                  value={editData.prayer_requests || ""}
+                  onChange={e => setEditData(prev => ({ ...prev, prayer_requests: e.target.value }))}
+                  rows={2}
+                  className="w-full bg-white/6 border border-white/10 focus:border-[#c9a84c]/40 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all resize-none"
+                />
+              </div>
+
+              {editSuccess && (
+                <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-3">
+                  <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />
+                  <p className="text-green-400 text-xs">Your response has been updated successfully!</p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setStep("pass"); setEditSuccess(false); }}
+                  className="flex-1 py-3 border border-white/10 text-white/70 rounded-xl text-sm hover:border-white/20 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={editSaving}
+                  onClick={async () => {
+                    // Validate
+                    const errs: Record<string, string> = {};
+                    const ph = (editData.phone || "").trim();
+                    if (!ph) errs.phone = "Phone number is required";
+                    else if (ph.length < 10) errs.phone = "Must be 10 digits";
+                    else if (!/^[6-9]\d{9}$/.test(ph)) errs.phone = "Enter a valid mobile number starting with 6-9";
+                    if (!editData.age) errs.age = "Required";
+                    if (!(editData.church || "").trim()) errs.church = "Required";
+                    if (!(editData.city || "").trim()) errs.city = "Required";
+                    if (Object.keys(errs).length) { setEditErrors(errs); return; }
+
+                    setEditSaving(true);
+                    const { error } = await getSupabase()
+                      .from("registrations")
+                      .update({
+                        phone: editData.phone,
+                        age: editData.age,
+                        church: editData.church,
+                        city: editData.city,
+                        questions: editData.questions || null,
+                        prayer_requests: editData.prayer_requests || null,
+                      })
+                      .eq("id", registration.id);
+                    setEditSaving(false);
+                    if (error) {
+                      setEditErrors({ city: "Failed to save. Please try again." });
+                      return;
+                    }
+                    // Update local state
+                    setRegistration(prev => prev ? { ...prev, ...editData as Registration } : prev);
+                    setEditSuccess(true);
+                  }}
+                  className="flex-1 py-3 bg-[#c9a84c] text-[#07090f] font-bold rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-[#d4b55f] transition-colors disabled:opacity-60"
+                >
+                  {editSaving ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

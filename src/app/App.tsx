@@ -6,6 +6,7 @@ import { toPng, toBlob } from "html-to-image";
 import QRCode from "react-qr-code";
 import type { Session } from "@supabase/supabase-js";
 import { getSupabase } from "@/supabase";
+import { validateAdminCredentials } from "@/config/adminConfig";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import eventBanner from "@/imports/POY_2026.jpg";
 import sammyPhoto from "@/imports/Pas._Sammy.png";
@@ -72,6 +73,10 @@ const generatePassDataUrl = async (
     const ctx = canvas.getContext("2d");
 
     if (ctx) {
+      // 0. Fill canvas background with dark tone to prevent WhatsApp transparent white fill
+      ctx.fillStyle = "#06090c";
+      ctx.fillRect(0, 0, 640, 1136);
+
       // 1. Draw background image
       const bgImg = new Image();
       bgImg.crossOrigin = "anonymous";
@@ -83,10 +88,33 @@ const generatePassDataUrl = async (
       });
       ctx.drawImage(bgImg, 0, 0, 640, 1136);
 
-      // 2. Draw QR code from element if available
+      // 2. Draw QR code background container & QR code
+      const qrBoxX = 320 - 114;
+      const qrBoxY = 436 - 14;
+      const qrBoxSize = 228;
+      const radius = 20;
+
+      // Draw dark translucent glass container
+      ctx.fillStyle = "rgba(8, 14, 18, 0.85)";
+      ctx.beginPath();
+      if (typeof (ctx as any).roundRect === "function") {
+        (ctx as any).roundRect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize, radius);
+      } else {
+        ctx.rect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize);
+      }
+      ctx.fill();
+
+      // Draw subtle gold accent border around QR box
+      ctx.strokeStyle = "rgba(201, 168, 76, 0.5)";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
       const svgElement = element?.querySelector("svg");
       if (svgElement) {
-        const svgString = new XMLSerializer().serializeToString(svgElement);
+        // Remove background path/rect so QR is transparent on the canvas
+        let svgString = new XMLSerializer().serializeToString(svgElement);
+        svgString = svgString.replace(/<path[^>]*fill="transparent"[^>]*><\/path>/gi, "");
+        svgString = svgString.replace(/<rect[^>]*>/gi, "");
         const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
         const url = URL.createObjectURL(svgBlob);
         const qrImg = new Image();
@@ -96,14 +124,6 @@ const generatePassDataUrl = async (
           qrImg.onerror = () => resolve(false);
         });
 
-        ctx.fillStyle = "#ffffff";
-        ctx.beginPath();
-        if (typeof (ctx as any).roundRect === "function") {
-          (ctx as any).roundRect(320 - 114, 436 - 14, 228, 228, 20);
-        } else {
-          ctx.rect(320 - 114, 436 - 14, 228, 228);
-        }
-        ctx.fill();
         ctx.drawImage(qrImg, 320 - 100, 436, 200, 200);
         URL.revokeObjectURL(url);
       }
@@ -344,23 +364,15 @@ const FAQ = [
 ];
 
 const GALLERY_IMAGES = [
-  {
-    image: poy1,
-    alt: "Crowd worshipping at youth conference",
-  },
-  { image: poy2 },
-  {
-    image: poy3,
-  },
-  {
-    image: poy4,
-  },
-  {
-    image: poy5,
-  },
-  {
-    image: poy6,
-  },
+  { image: poy1, alt: "Stage performance with flag" },
+  { image: poy2, alt: "Speaker at pulpit" },
+  { image: poy3, alt: "Audience crowd in temple" },
+  { image: poy4, alt: "Youth worshipping" },
+  { image: poy5, alt: "Youth conference gathering" },
+  { image: poy6, alt: "Event stage lights" },
+  { image: poy7, alt: "Audience praising" },
+  { image: poy8, alt: "Youth celebration" },
+  { image: poy9, alt: "Prayer and fellowship" },
 ];
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
@@ -1213,6 +1225,11 @@ function Schedule() {
 function Gallery() {
   const [selected, setSelected] = useState<number | null>(null);
 
+  const topFeatured = GALLERY_IMAGES[0];
+  const topRightOne = GALLERY_IMAGES[1];
+  const topRightTwo = GALLERY_IMAGES[2];
+  const remaining = GALLERY_IMAGES.slice(3);
+
   return (
     <section id="gallery" className="py-24 md:py-32 px-6">
       <div className="max-w-6xl mx-auto">
@@ -1224,9 +1241,8 @@ function Gallery() {
           className="text-center mb-16"
         >
           <SectionLabel>Gallery</SectionLabel>
-          <h2 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-white mb-4">
-            Moments of{" "}
-            <span className="text-[#c9a84c]">Glory</span>
+          <h2 className="font-[#Playfair_Display] text-4xl md:text-5xl font-bold text-white mb-4 font-['Playfair_Display']">
+            Moments of <span className="text-[#c9a84c]">Glory</span>
           </h2>
           <GoldLine />
           <p className="text-white/40 text-sm mt-4">
@@ -1234,26 +1250,21 @@ function Gallery() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-          {GALLERY_IMAGES.map((img, i) => (
+        {/* Top Hero Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-3 md:mb-4">
+          {/* Main Featured Image (2 Columns wide) */}
+          <div className="md:col-span-2">
             <motion.div
-              key={i}
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              onClick={() => setSelected(i)}
-              className={`relative cursor-pointer group overflow-hidden rounded-xl ${
-                i === 0 ? "md:col-span-2 md:row-span-2" : ""
-              }`}
-              style={{ aspectRatio: i === 0 ? "16/9" : "4/3" }}
+              transition={{ duration: 0.5 }}
+              onClick={() => setSelected(0)}
+              className="relative cursor-pointer group overflow-hidden rounded-xl aspect-[16/10] w-full h-full"
             >
               <ImageWithFallback
-                src={
-                  img.image ??
-                  `https://images.unsplash.com/photo-${img.id}?w=${i === 0 ? 800 : 400}&h=${i === 0 ? 450 : 300}&fit=crop&auto=format`
-                }
-                alt={img.alt}
+                src={topFeatured.image}
+                alt={topFeatured.alt}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#07090f]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -1263,7 +1274,82 @@ function Gallery() {
                 </div>
               </div>
             </motion.div>
-          ))}
+          </div>
+
+          {/* Right Column Stacked Images (1 Column wide) */}
+          <div className="flex flex-col gap-3 md:gap-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.08 }}
+              onClick={() => setSelected(1)}
+              className="relative cursor-pointer group overflow-hidden rounded-xl flex-1 aspect-[16/9.5] md:aspect-auto"
+            >
+              <ImageWithFallback
+                src={topRightOne.image}
+                alt={topRightOne.alt}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#07090f]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                  <Eye className="w-4 h-4 text-white" />
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.16 }}
+              onClick={() => setSelected(2)}
+              className="relative cursor-pointer group overflow-hidden rounded-xl flex-1 aspect-[16/9.5] md:aspect-auto"
+            >
+              <ImageWithFallback
+                src={topRightTwo.image}
+                alt={topRightTwo.alt}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#07090f]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                  <Eye className="w-4 h-4 text-white" />
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Bottom 3-Column Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+          {remaining.map((img, i) => {
+            const actualIndex = i + 3;
+            return (
+              <motion.div
+                key={actualIndex}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                onClick={() => setSelected(actualIndex)}
+                className="relative cursor-pointer group overflow-hidden rounded-xl aspect-[4/3] h-full"
+              >
+                <ImageWithFallback
+                  src={img.image}
+                  alt={img.alt}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#07090f]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                    <Eye className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
         <AnimatePresence>
@@ -1279,10 +1365,7 @@ function Gallery() {
                 <X className="w-6 h-6" />
               </button>
               <ImageWithFallback
-                src={
-                  GALLERY_IMAGES[selected].image ??
-                  `https://images.unsplash.com/photo-${GALLERY_IMAGES[selected].id}?w=1200&h=800&fit=crop&auto=format`
-                }
+                src={GALLERY_IMAGES[selected].image}
                 alt={GALLERY_IMAGES[selected].alt}
                 className="max-w-full max-h-full rounded-xl object-contain"
                 onClick={(e) => e.stopPropagation()}
@@ -1618,20 +1701,22 @@ function EventPassCard({
         }}
       />
 
-      {/* ── QR Code — centered in the empty dark area ── */}
+      {/* ── QR Code — centered with dark glass & gold border ── */}
       <div
         style={{
           position: "absolute",
           top: "218px",
           left: "50%",
           transform: "translateX(-50%)",
-          background: "#ffffff",
-          padding: "7px",
-          borderRadius: "10px",
+          background: "rgba(8, 14, 18, 0.8)",
+          backdropFilter: "blur(12px)",
+          border: "1.5px solid rgba(201, 168, 76, 0.45)",
+          padding: "10px",
+          borderRadius: "14px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.6), inset 0 0 12px rgba(201,168,76,0.15)",
           zIndex: 1,
           boxSizing: "border-box",
         }}
@@ -1640,8 +1725,8 @@ function EventPassCard({
           value={registrationId}
           size={100}
           style={{ height: "100px", width: "100px", display: "block" }}
-          bgColor="#ffffff"
-          fgColor="#000000"
+          bgColor="transparent"
+          fgColor="#ffffff"
           level="M"
         />
       </div>
@@ -2880,12 +2965,29 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const handleOpenAdmin = () => {
+    // Require fresh login every time admin portal is opened
+    getSupabase().auth.signOut().catch(() => {});
+    setSession(null);
+    setAdminError("");
+    setAdminPassword("");
+    setShowAdmin(true);
+  };
+
   // Ctrl+Shift+A keyboard shortcut to open admin portal
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a") {
         e.preventDefault();
-        setShowAdmin(prev => !prev);
+        setShowAdmin(prev => {
+          if (!prev) {
+            getSupabase().auth.signOut().catch(() => {});
+            setSession(null);
+            setAdminError("");
+            setAdminPassword("");
+          }
+          return !prev;
+        });
       }
     };
     window.addEventListener("keydown", handler);
@@ -2896,23 +2998,17 @@ export default function App() {
     setAdminLoading(true);
     setAdminError("");
 
-    const cleanEmail = adminEmail.trim().toLowerCase();
+    const cleanEmail = adminEmail.trim();
     const cleanPassword = adminPassword.trim();
 
-    // Built-in preset admin credentials fallback
-    if (
-      (cleanEmail === "admin@poy2026.com" || cleanEmail === "admin") &&
-      (
-        cleanPassword === "admin123" ||
-        cleanPassword === "poy2026" ||
-        cleanPassword === "admin"
-      )
-    ) {
+    // Check updated built-in preset admin credentials
+    if (validateAdminCredentials(cleanEmail, cleanPassword)) {
       setSession({
-        user: { id: "admin-preset", email: "admin@poy2026.com" },
+        user: { id: "admin-preset", email: cleanEmail || "admin@poy2026.org" },
         access_token: "preset-admin-token",
       } as any);
       setAdminLoading(false);
+      setAdminPassword("");
       return;
     }
 
@@ -2921,7 +3017,9 @@ export default function App() {
       password: adminPassword,
     });
     if (error) {
-      setAdminError(error.message);
+      setAdminError(error.message || "Invalid email or password");
+    } else {
+      setAdminPassword("");
     }
     setAdminLoading(false);
   }
@@ -2959,7 +3057,7 @@ export default function App() {
 
       <Footer 
         onRegister={() => setShowRegister(true)} 
-        onAdmin={() => setShowAdmin(true)} 
+        onAdmin={handleOpenAdmin} 
       />
 
       {/* Register CTA ribbon */}
@@ -3053,8 +3151,12 @@ function AdminWidget({
 
   // Switch to dashboard when admin signs in
   useEffect(() => {
-    if (session) setScreen("dashboard");
-  }, [session]);
+    if (session) {
+      setScreen("dashboard");
+    } else if (!scannerToken) {
+      setScreen("login");
+    }
+  }, [session, scannerToken]);
 
   async function loginWithToken() {
     if (!tokenInput.trim()) return;
@@ -3081,12 +3183,12 @@ function AdminWidget({
   }
 
   function handleClose() {
-    if (screen === "scanner" && !session) {
-      setScannerToken(null);
-      setScreen("login");
-    } else {
-      onClose();
-    }
+    // Clear active sessions so re-opening the admin portal requires logging in again
+    getSupabase().auth.signOut().catch(() => {});
+    setScannerToken(null);
+    setAdminPassword("");
+    setScreen("login");
+    onClose();
   }
 
   return (
@@ -3108,13 +3210,16 @@ function AdminWidget({
           <span className="text-xs font-mono text-green-400/70">●</span>
         </div>
         <div className="flex items-center gap-2">
-          {session && (
+          {session ? (
             <>
               <button onClick={() => setScreen("dashboard")} className={`text-xs px-4 py-1.5 rounded-lg font-semibold transition-colors ${screen === "dashboard" ? "bg-[#c9a84c] text-black" : "text-white/50 hover:text-white hover:bg-white/5"}`}>Overview</button>
               <button onClick={() => setScreen("scanner")} className={`text-xs px-4 py-1.5 rounded-lg font-semibold transition-colors ${screen === "scanner" ? "bg-[#c9a84c] text-black" : "text-white/50 hover:text-white hover:bg-white/5"}`}>Scan</button>
               <button onClick={() => setScreen("tokens")} className={`text-xs px-4 py-1.5 rounded-lg font-semibold transition-colors ${screen === "tokens" ? "bg-[#c9a84c] text-black" : "text-white/50 hover:text-white hover:bg-white/5"}`}>Tokens</button>
+              <button onClick={handleClose} className="text-xs px-3 py-1.5 rounded-lg font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors flex items-center gap-1 ml-1">
+                <LogOut className="w-3.5 h-3.5" /> Sign Out
+              </button>
             </>
-          )}
+          ) : null}
           <button onClick={handleClose} className="text-white/30 hover:text-white ml-2">
             <X className="w-5 h-5" />
           </button>
@@ -3463,19 +3568,22 @@ function TokenManagerScreen() {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let code = "SCAN-";
     for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-    await getSupabase().from("scanner_tokens").insert({ token: code, label: newLabel.trim(), active: true });
+    const { error } = await getSupabase().from("scanner_tokens").insert({ token: code, label: newLabel.trim(), active: true });
+    if (error) console.error("Create token error:", error);
     setNewLabel("");
     setCreating(false);
     fetchTokens();
   }
 
   async function toggleToken(id: string, active: boolean) {
-    await getSupabase().from("scanner_tokens").update({ active: !active }).eq("id", id);
+    const { error } = await getSupabase().from("scanner_tokens").update({ active: !active }).eq("id", id);
+    if (error) console.error("Toggle token error:", error);
     fetchTokens();
   }
 
   async function deleteToken(id: string) {
-    await getSupabase().from("scanner_tokens").delete().eq("id", id);
+    const { error } = await getSupabase().from("scanner_tokens").delete().eq("id", id);
+    if (error) console.error("Delete token error:", error);
     fetchTokens();
   }
 

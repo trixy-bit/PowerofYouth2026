@@ -111,12 +111,10 @@ const generatePassDataUrl = async (
 
       const svgElement = element?.querySelector("svg");
       if (svgElement) {
-        // Remove background rects so QR renders black on the white canvas box
         let svgString = new XMLSerializer().serializeToString(svgElement);
-        svgString = svgString.replace(/<path[^>]*fill="transparent"[^>]*><\/path>/gi, "");
-        svgString = svgString.replace(/<rect[^>]*fill="white"[^>]*>/gi, "");
-        // Force QR dots to black
-        svgString = svgString.replace(/fill="#ffffff"/gi, 'fill="#000000"');
+        // Remove ALL rect elements — the white background is already drawn by canvas above
+        // Leaving only the black QR dot paths on the white canvas box
+        svgString = svgString.replace(/<rect[^>]*\/?>/gi, "");
         const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
         const url = URL.createObjectURL(svgBlob);
         const qrImg = new Image();

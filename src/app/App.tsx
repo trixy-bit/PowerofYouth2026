@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { toPng, toBlob } from "html-to-image";
+import { Html5Qrcode } from "html5-qrcode";
 
 
 import QRCode from "react-qr-code";
@@ -3375,7 +3376,6 @@ function ScannerScreen({ onClose, allowTestMode = false }: { onClose: () => void
     const initScanner = async () => {
       if (!scannerRef.current) return;
       try {
-        const { Html5Qrcode } = await import("html5-qrcode");
         const instance = new Html5Qrcode("qr-reader-box");
         scannerInstance.current = instance;
         await instance.start(

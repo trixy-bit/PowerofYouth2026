@@ -2909,7 +2909,7 @@ function RetrieveModal({
                     }}
                     className="w-full py-3 border border-[#c9a84c]/40 text-[#c9a84c] rounded-xl text-sm font-semibold hover:bg-[#c9a84c]/10 transition-colors flex items-center justify-center gap-2"
                   >
-                    âœï¸ Edit Your Response
+                    Edit Your Response
                   </button>
                 </div>
               </div>

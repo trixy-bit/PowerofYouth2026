@@ -1,13 +1,8 @@
 
 import { useState, useEffect, useRef } from "react";
-import { toPng, toBlob } from "html-to-image";
-import { Html5Qrcode } from "html5-qrcode";
-
-
+import { toPng } from "html-to-image";
 import QRCode from "react-qr-code";
-import type { Session } from "@supabase/supabase-js";
 import { getSupabase } from "@/supabase";
-import { validateAdminCredentials } from "@/config/adminConfig";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import eventBanner from "@/imports/POY_2026.jpg";
 import sammyPhoto from "@/imports/Pas._Sammy.png";
@@ -60,7 +55,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-// ─── Pass Image Generator ─────────────────────────────────────────────────────
+// â”€â”€â”€ Pass Image Generator â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const generatePassDataUrl = async (
   element: HTMLDivElement | null,
@@ -113,7 +108,7 @@ const generatePassDataUrl = async (
       const svgElement = element?.querySelector("svg");
       if (svgElement) {
         let svgString = new XMLSerializer().serializeToString(svgElement);
-        // Remove ALL rect elements — the white background is already drawn by canvas above
+        // Remove ALL rect elements â€” the white background is already drawn by canvas above
         // Leaving only the black QR dot paths on the white canvas box
         svgString = svgString.replace(/<rect[^>]*\/?>/gi, "");
         const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
@@ -198,7 +193,7 @@ const savePassAsImage = async (
   alert("Could not download automatically. Please take a screenshot of your pass!");
 };
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface Registration {
   id: string;
   name: string;
@@ -221,7 +216,7 @@ interface CountdownValue {
   seconds: number;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const EVENT_DATE = new Date("2026-08-15T09:30:00+05:30");
 
 const POPULAR_CITIES = [
@@ -373,7 +368,7 @@ const GALLERY_IMAGES = [
   { image: poy6, alt: "Event stage lights" },
 ];
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Utilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function generateRegId(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let id = "POY26-";
@@ -410,7 +405,7 @@ function useCountdown(target: Date): CountdownValue {
   return value;
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function YouTubeIcon({ className }: { className?: string }) {
   return (
@@ -522,7 +517,7 @@ function CountdownBlock({
   );
 }
 
-// ─── Sections ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Sections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function Navbar({
   onRegister,
@@ -736,7 +731,7 @@ function Hero({
       <div className="absolute inset-0">
         <ImageWithFallback
           src={heroBg}
-          alt="Hourglass and glowing doorway — Power of Youth 2026 backdrop"
+          alt="Hourglass and glowing doorway â€” Power of Youth 2026 backdrop"
           className="w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#07090f]/50 via-[#07090f]/20 to-[#07090f]" />
@@ -790,7 +785,7 @@ function Hero({
           transition={{ duration: 0.7, delay: 0.35 }}
           className="text-white/50 font-mono text-sm mb-6"
         >
-          <span className="text-[#c9a84c] font-bold">15 August 2026</span> · 9:30 AM
+          <span className="text-[#c9a84c] font-bold">15 August 2026</span> Â· 9:30 AM
         </motion.p>
 
         <motion.div
@@ -833,7 +828,7 @@ function Hero({
             onClick={onRegister}
             className="group px-8 py-4 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-full flex items-center gap-2 transition-all duration-300 hover:shadow-[0_0_40px_rgba(201,168,76,0.5)] text-sm"
           >
-            Register Now — Free
+            Register Now â€” Free
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
           <button
@@ -892,7 +887,7 @@ function EventBanner({
           <div className="relative rounded-2xl md:rounded-3xl overflow-hidden border border-[#c9a84c]/20 shadow-[0_0_60px_rgba(201,168,76,0.12)]">
             <ImageWithFallback
               src={eventBanner}
-              alt="Power of Youth 2026 — Your Story Isn't Over. 15 Aug 2026, 9:30 AM. Maranatha Temple, Vijayawada. Featuring Pas. Bhanu Chand Alluri and Rev. Sammy Thangiah."
+              alt="Power of Youth 2026 â€” Your Story Isn't Over. 15 Aug 2026, 9:30 AM. Maranatha Temple, Vijayawada. Featuring Pas. Bhanu Chand Alluri and Rev. Sammy Thangiah."
               className="w-full h-auto object-cover block"
             />
 
@@ -943,7 +938,7 @@ function About() {
     {
       icon: <BookOpen className="w-5 h-5" />,
       title: "Scripture Focus",
-      desc: "Rooted in Romans 8:28 — all things work together for good",
+      desc: "Rooted in Romans 8:28 â€” all things work together for good",
     },
   ];
 
@@ -969,7 +964,7 @@ function About() {
             Power of Youth 2026 is a one-day spiritual gathering
             designed for young people aged 17-40 who are seeking
             a fresh encounter with God. Whether you are walking
-            through pain, confusion, or simply hunger for more —
+            through pain, confusion, or simply hunger for more â€”
             this is your day.
           </p>
         </motion.div>
@@ -997,7 +992,7 @@ function About() {
                     for the good of those who love him."
                   </p>
                   <p className="text-[#c9a84c] text-xs mt-1 font-mono">
-                    — Romans 8:28
+                    â€” Romans 8:28
                   </p>
                 </div>
               </div>
@@ -1040,7 +1035,7 @@ function About() {
                 lives since 2006. Each year, hundreds return
                 with testimonies of healing, calling, and
                 renewed faith. Your story is not written by your
-                past — come discover what God has next.
+                past â€” come discover what God has next.
               </p>
             </div>
           </motion.div>
@@ -1649,7 +1644,7 @@ function Contact() {
   );
 }
 
-// ─── Registration Modal ────────────────────────────────────────────────────────
+// â”€â”€â”€ Registration Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function EventPassCard({
   registrationId,
@@ -1699,7 +1694,7 @@ function EventPassCard({
         }}
       />
 
-      {/* ── QR Code — white background for maximum scannability ── */}
+      {/* â”€â”€ QR Code â€” white background for maximum scannability â”€â”€ */}
       <div
         style={{
           position: "absolute",
@@ -1728,7 +1723,7 @@ function EventPassCard({
         />
       </div>
 
-      {/* ── Name ── */}
+      {/* â”€â”€ Name â”€â”€ */}
       <div
         style={{
           position: "absolute",
@@ -1751,7 +1746,7 @@ function EventPassCard({
         {name}
       </div>
 
-      {/* ── Church / City ── */}
+      {/* â”€â”€ Church / City â”€â”€ */}
       <div
         style={{
           position: "absolute",
@@ -1774,7 +1769,7 @@ function EventPassCard({
         {church}{city ? ` - ${city}` : ""}
       </div>
 
-      {/* ── Registration ID ── */}
+      {/* â”€â”€ Registration ID â”€â”€ */}
       <div
         style={{
           position: "absolute",
@@ -1874,8 +1869,8 @@ function RegistrationModal({
               },
             });
             if (!fnError) {
-              console.log(`✅ Ticket email sent (attempt ${attempt})`);
-              return; // success — stop retrying
+              console.log(`âœ… Ticket email sent (attempt ${attempt})`);
+              return; // success â€” stop retrying
             }
             lastErr = fnError;
           } catch (err) {
@@ -1886,7 +1881,7 @@ function RegistrationModal({
             await new Promise((r) => setTimeout(r, attempt * 2000));
           }
         }
-        // All 3 attempts failed — log silently, don't block the user
+        // All 3 attempts failed â€” log silently, don't block the user
         console.error("Failed to send ticket email after 3 attempts:", lastErr);
       };
       sendEmailWithRetry();
@@ -1925,7 +1920,7 @@ function RegistrationModal({
     setSubmitError(null);
     setLoading(true);
 
-    // ── Duplicate check: email ──
+    // â”€â”€ Duplicate check: email â”€â”€
     const { data: emailCheck } = await getSupabase()
       .from("registrations")
       .select("id")
@@ -1937,7 +1932,7 @@ function RegistrationModal({
       return;
     }
 
-    // ── Duplicate check: phone ──
+    // â”€â”€ Duplicate check: phone â”€â”€
     const normalize = (p: string) => p.replace(/[\s\-\(\)\+]/g, "").slice(-10);
     const { data: allRegs } = await getSupabase()
       .from("registrations")
@@ -1975,7 +1970,7 @@ function RegistrationModal({
           ? "You appear to be already registered. Use \"Already Registered?\" to retrieve your pass."
           : error.message?.includes("network")
           ? "Connection error. Please check your internet and try again."
-          : "Registration failed — please try again. If the issue persists, contact the event team.";
+          : "Registration failed â€” please try again. If the issue persists, contact the event team.";
       setSubmitError(msg);
       return;
     }
@@ -2074,7 +2069,7 @@ function RegistrationModal({
                   Secure Your Seat
                 </h2>
                 <p className="text-white/40 text-xs mt-1">
-                  Power of Youth 2026 · 15 August · Free Entry
+                  Power of Youth 2026 Â· 15 August Â· Free Entry
                 </p>
               </div>
             </div>
@@ -2126,19 +2121,19 @@ function RegistrationModal({
                       value="13-17"
                       className="bg-[#0d1020]"
                     >
-                      13–17 years
+                      13â€“17 years
                     </option>
                     <option
                       value="18-24"
                       className="bg-[#0d1020]"
                     >
-                      18–24 years
+                      18â€“24 years
                     </option>
                     <option
                       value="25-35"
                       className="bg-[#0d1020]"
                     >
-                      25–35 years
+                      25â€“35 years
                     </option>
                     <option
                       value="35+"
@@ -2281,10 +2276,10 @@ function RegistrationModal({
                 </p>
               )}
 
-              {/* ── Submit Error Banner ── */}
+              {/* â”€â”€ Submit Error Banner â”€â”€ */}
               {submitError && (
                 <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
-                  <span className="text-red-400 text-lg leading-none mt-0.5">⚠</span>
+                  <span className="text-red-400 text-lg leading-none mt-0.5">âš </span>
                   <div>
                     <p className="text-red-400 text-xs font-semibold mb-0.5">Registration Failed</p>
                     <p className="text-red-400/80 text-xs leading-relaxed">{submitError}</p>
@@ -2356,7 +2351,7 @@ function RegistrationModal({
   );
 }
 
-// ─── Admin Dashboard ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Admin Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function AdminDashboard({ onClose }: { onClose: () => void }) {
   const [regs, setRegs] = useState<Registration[]>([]);
@@ -2401,12 +2396,12 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
   };
 
   const handleScan = async () => {
-    // ── Date gate: attendance only allowed on 15 Aug 2026 ──
+    // â”€â”€ Date gate: attendance only allowed on 15 Aug 2026 â”€â”€
     const now = new Date();
     const eventDay = new Date("2026-08-15T00:00:00+05:30");
     const eventDayEnd = new Date("2026-08-16T00:00:00+05:30");
     if (now < eventDay || now >= eventDayEnd) {
-      setScanResult("🔒 Attendance check-in is only allowed on 15 August 2026.");
+      setScanResult("ðŸ”’ Attendance check-in is only allowed on 15 August 2026.");
       setScanInput("");
       setTimeout(() => setScanResult(null), 5000);
       return;
@@ -2419,9 +2414,9 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
       .eq("id", scannedId)
       .single();
     if (error || !data) {
-      setScanResult("❌ Registration ID not found");
+      setScanResult("âŒ Registration ID not found");
     } else if (data.attended) {
-      setScanResult(`⚠️ Already Checked In — ${data.name}`);
+      setScanResult(`âš ï¸ Already Checked In â€” ${data.name}`);
     } else {
       await getSupabase()
         .from("registrations")
@@ -2432,7 +2427,7 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
           r.id === scannedId ? { ...r, attended: true } : r,
         ),
       );
-      setScanResult(`✅ Entry granted for ${data.name}`);
+      setScanResult(`âœ… Entry granted for ${data.name}`);
     }
     setScanInput("");
     setTimeout(() => setScanResult(null), 4000);
@@ -2504,7 +2499,7 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
               Admin Dashboard
             </span>
             <span className="text-xs text-green-400/70 font-mono ml-2">
-              ● LIVE
+              â— LIVE
             </span>
           </div>
           <button
@@ -2615,7 +2610,7 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
                     Refresh
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       const csv = [
                         "ID,Name,Email,Phone,Age,Church,City,Attended,Date",
                         ...regs.map(
@@ -2623,10 +2618,25 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
                             `${r.id},"${(r.name || "").replace(/"/g, '""')}",${r.email},${r.phone},${r.age},"${(r.church || "").replace(/"/g, '""')}","${(r.city || "").replace(/"/g, '""')}",${r.attended},${r.timestamp || ""}`,
                         ),
                       ].join("\n");
+                      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+                      if ('showSaveFilePicker' in window) {
+                        try {
+                          const fh = await (window as any).showSaveFilePicker({ suggestedName: 'poy2026_registrations.csv', types: [{ description: 'CSV File', accept: { 'text/csv': ['.csv'] } }] });
+                          const w = await fh.createWritable();
+                          await w.write(blob);
+                          await w.close();
+                          return;
+                        } catch (e: any) { if (e.name === 'AbortError') return; }
+                      }
+                      const url = URL.createObjectURL(blob);
                       const a = document.createElement("a");
-                      a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
+                      a.href = url;
                       a.download = "poy2026_registrations.csv";
+                      a.style.display = "none";
+                      document.body.appendChild(a);
                       a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
                     }}
                     className="flex items-center gap-2 px-4 py-2 bg-[#c9a84c]/10 border border-[#c9a84c]/20 text-[#c9a84c] rounded-xl text-xs hover:bg-[#c9a84c]/20 transition-colors"
                   >
@@ -2662,7 +2672,7 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
                 {filtered.length === 0 ? (
                   <div className="text-center py-12 text-white/30 text-sm">
                     {regs.length === 0
-                      ? "No registrations yet — register using the main form!"
+                      ? "No registrations yet â€” register using the main form!"
                       : "No results found"}
                   </div>
                 ) : (
@@ -2677,7 +2687,7 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
                             {r.name}
                           </p>
                           <p className="text-white/40 text-xs">
-                            {r.email} · {r.church}
+                            {r.email} Â· {r.church}
                           </p>
                           <p className="text-[#c9a84c] text-xs font-mono mt-0.5">
                             {r.id}
@@ -2704,7 +2714,7 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
                             }`}
                           >
                             {r.attended
-                              ? "✓ Attended"
+                              ? "âœ“ Attended"
                               : "Mark Present"}
                           </button>
                         </div>
@@ -2786,14 +2796,12 @@ function AdminDashboard({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ─── Footer ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function Footer({ 
   onRegister,
-  onAdmin,
 }: { 
   onRegister: () => void;
-  onAdmin?: () => void;
 }) {
   return (
     <footer className="border-t border-white/5 py-16 px-6">
@@ -2851,7 +2859,7 @@ function Footer({
               <p>15 August 2026, Saturday</p>
               <p>9:30 AM </p>
               <p>Maranatha Temple, Vijayawada</p>
-              <p>Free Entry · All Welcome</p>
+              <p>Free Entry Â· All Welcome</p>
             </div>
             <button
               onClick={onRegister}
@@ -2866,19 +2874,15 @@ function Footer({
         <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <p className="text-white/20 text-xs font-mono">
-              © 2026 Maranatha Visvasa Samajam. All rights reserved.
+              Â© 2026 Maranatha Visvasa Samajam. All rights reserved.
             </p>
-            {onAdmin && (
-              <>
-                <span className="text-white/10 text-xs font-mono">•</span>
-                <button
-                  onClick={onAdmin}
-                  className="text-white/10 hover:text-white/30 text-[8px] font-mono transition-colors tracking-widest"
-                >
-                  admin
-                </button>
-              </>
-            )}
+            <span className="text-white/10 text-xs font-mono">â€¢</span>
+            <a
+              href="/#/admin"
+              className="text-white/10 hover:text-white/30 text-[8px] font-mono transition-colors tracking-widest"
+            >
+              admin
+            </a>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
@@ -2945,7 +2949,7 @@ function Footer({
           </div>
 
           <p className="font-['Playfair_Display'] italic text-white/15 text-sm">
-            "Your Story Isn't Over" — Romans 8:28
+            "Your Story Isn't Over" â€” Romans 8:28
           </p>
         </div>
       </div>
@@ -2953,99 +2957,13 @@ function Footer({
   );
 }
 
-// ─── App ──────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ App â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function App() {
   const [showRegister, setShowRegister] = useState(false);
   const [showRetrieve, setShowRetrieve] = useState(false);
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
-  // volunteer scanner token session
-  const [scannerToken, setScannerToken] = useState<string | null>(null);
 
-  const [adminEmail, setAdminEmail] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [adminLoading, setAdminLoading] = useState(false);
-  const [adminError, setAdminError] = useState("");
-
-  useEffect(() => {
-    getSupabase()
-      .auth.getSession()
-      .then(({ data }) => {
-        setSession(data.session);
-      });
-
-    const {
-      data: { subscription },
-    } = getSupabase().auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-      },
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleOpenAdmin = () => {
-    // Require fresh login every time admin portal is opened
-    getSupabase().auth.signOut().catch(() => {});
-    setSession(null);
-    setAdminError("");
-    setAdminPassword("");
-    setShowAdmin(true);
-  };
-
-  // Ctrl+Shift+A keyboard shortcut to open admin portal
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a") {
-        e.preventDefault();
-        setShowAdmin(prev => {
-          if (!prev) {
-            getSupabase().auth.signOut().catch(() => {});
-            setSession(null);
-            setAdminError("");
-            setAdminPassword("");
-          }
-          return !prev;
-        });
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
-
-  async function adminLogin() {
-    setAdminLoading(true);
-    setAdminError("");
-
-    const cleanEmail = adminEmail.trim();
-    const cleanPassword = adminPassword.trim();
-
-    if (!cleanEmail || !cleanPassword) {
-      setAdminError("Please enter both email and password.");
-      setAdminLoading(false);
-      return;
-    }
-
-    // Only allow preset admin credentials — no Supabase auth fallback
-    if (validateAdminCredentials(cleanEmail, cleanPassword)) {
-      setSession({
-        user: { id: "admin-preset", email: cleanEmail },
-        access_token: "preset-admin-token",
-      } as any);
-      setAdminLoading(false);
-      setAdminPassword("");
-      return;
-    }
-
-    // Credentials don't match — reject immediately
-    setAdminError("Invalid email or password. Access denied.");
-    setAdminPassword("");
-    setAdminLoading(false);
-  }
-
-  // Lock scroll when register modal open (not for tiny admin widget)
+  // Lock scroll when register modal open
   useEffect(() => {
     document.body.style.overflow = showRegister ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -3057,9 +2975,9 @@ export default function App() {
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <Navbar
-  onRegister={() => setShowRegister(true)}
-  onRetrieve={() => setShowRetrieve(true)}
-/>
+        onRegister={() => setShowRegister(true)}
+        onRetrieve={() => setShowRetrieve(true)}
+      />
 
       <main>
         <Hero
@@ -3078,7 +2996,6 @@ export default function App() {
 
       <Footer 
         onRegister={() => setShowRegister(true)} 
-        onAdmin={handleOpenAdmin} 
       />
 
       {/* Register CTA ribbon */}
@@ -3093,7 +3010,7 @@ export default function App() {
           className="flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-full shadow-[0_8px_40px_rgba(201,168,76,0.4)] transition-all duration-300 hover:shadow-[0_8px_60px_rgba(201,168,76,0.6)] text-xs md:text-sm whitespace-nowrap"
         >
           <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
-          <span>Register Now — 15 August 2026</span>
+          <span>Register Now â€” 15 August 2026</span>
           <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
         </button>
       </motion.div>
@@ -3110,575 +3027,9 @@ export default function App() {
           />
         )}
       </AnimatePresence>
-
-      {/* Compact Admin Portal Widget (Ctrl+Shift+A) */}
-      <AnimatePresence>
-        {showAdmin && (
-          <AdminWidget
-            session={session}
-            scannerToken={scannerToken}
-            setScannerToken={setScannerToken}
-            adminEmail={adminEmail}
-            setAdminEmail={setAdminEmail}
-            adminPassword={adminPassword}
-            setAdminPassword={setAdminPassword}
-            adminLoading={adminLoading}
-            adminError={adminError}
-            onAdminLogin={adminLogin}
-            onClose={() => setShowAdmin(false)}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }
-
-// ─── Admin Widget (compact floating portal, Ctrl+Shift+A) ─────────────────────
-
-type AdminWidgetProps = {
-  session: import("@supabase/supabase-js").Session | null;
-  scannerToken: string | null;
-  setScannerToken: (t: string | null) => void;
-  adminEmail: string;
-  setAdminEmail: (v: string) => void;
-  adminPassword: string;
-  setAdminPassword: (v: string) => void;
-  adminLoading: boolean;
-  adminError: string;
-  onAdminLogin: () => void;
-  onClose: () => void;
-};
-
-function AdminWidget({
-  session,
-  scannerToken,
-  setScannerToken,
-  adminEmail,
-  setAdminEmail,
-  adminPassword,
-  setAdminPassword,
-  adminLoading,
-  adminError,
-  onAdminLogin,
-  onClose,
-}: AdminWidgetProps) {
-  type Screen = "login" | "scanner" | "dashboard" | "tokens";
-  const [screen, setScreen] = useState<Screen>(
-    session ? "dashboard" : scannerToken ? "scanner" : "login"
-  );
-  const [tokenInput, setTokenInput] = useState("");
-  const [tokenError, setTokenError] = useState("");
-  const [tokenLoading, setTokenLoading] = useState(false);
-
-  // Switch to dashboard when admin signs in
-  useEffect(() => {
-    if (session) {
-      setScreen("dashboard");
-    } else if (!scannerToken) {
-      setScreen("login");
-    }
-  }, [session, scannerToken]);
-
-  async function loginWithToken() {
-    if (!tokenInput.trim()) return;
-    setTokenLoading(true);
-    setTokenError("");
-    const normToken = tokenInput.trim().toUpperCase();
-
-    const { data, error } = await getSupabase()
-      .from("scanner_tokens")
-      .select("token, label, active")
-      .eq("token", normToken)
-      .single();
-    setTokenLoading(false);
-    if (error || !data) {
-      setTokenError("Invalid token. Please check with the admin.");
-      return;
-    }
-    if (!data.active) {
-      setTokenError("This token has been deactivated.");
-      return;
-    }
-    setScannerToken(tokenInput.trim().toUpperCase());
-    setScreen("scanner");
-  }
-
-  function handleClose() {
-    // Clear active sessions so re-opening the admin portal requires logging in again
-    getSupabase().auth.signOut().catch(() => {});
-    setScannerToken(null);
-    setAdminPassword("");
-    setScreen("login");
-    onClose();
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 20, scale: 0.95 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ fontFamily: "'Inter', sans-serif" }}
-    >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
-      <div className="relative w-full max-w-3xl bg-[#0a0c18] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-3.5 border-b border-white/8 bg-black/30">
-        <div className="flex items-center gap-3">
-          <Shield className="w-5 h-5 text-[#c9a84c]" />
-          <span className="text-white/80 text-sm font-mono tracking-widest uppercase">POY Admin v1.0</span>
-          <span className="text-xs font-mono text-green-400/70">●</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {session ? (
-            <>
-              <button onClick={() => setScreen("dashboard")} className={`text-xs px-4 py-1.5 rounded-lg font-semibold transition-colors ${screen === "dashboard" ? "bg-[#c9a84c] text-black" : "text-white/50 hover:text-white hover:bg-white/5"}`}>Overview</button>
-              <button onClick={() => setScreen("scanner")} className={`text-xs px-4 py-1.5 rounded-lg font-semibold transition-colors ${screen === "scanner" ? "bg-[#c9a84c] text-black" : "text-white/50 hover:text-white hover:bg-white/5"}`}>Scan</button>
-              <button onClick={() => setScreen("tokens")} className={`text-xs px-4 py-1.5 rounded-lg font-semibold transition-colors ${screen === "tokens" ? "bg-[#c9a84c] text-black" : "text-white/50 hover:text-white hover:bg-white/5"}`}>Tokens</button>
-              <button onClick={handleClose} className="text-xs px-3 py-1.5 rounded-lg font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors flex items-center gap-1 ml-1">
-                <LogOut className="w-3.5 h-3.5" /> Sign Out
-              </button>
-            </>
-          ) : null}
-          <button onClick={handleClose} className="text-white/30 hover:text-white ml-2">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Body */}
-      <div className="max-h-[88vh] overflow-y-auto">
-        {screen === "login" && (
-          <div className="p-4 space-y-3">
-            <p className="text-white/30 text-[10px] font-mono text-center uppercase tracking-wider">Ctrl+Shift+A • Admin Portal</p>
-            <div className="space-y-2">
-              <p className="text-white/50 text-xs font-semibold">Admin Login</p>
-              <input
-                type="email"
-                placeholder="admin@email.com"
-                value={adminEmail}
-                onChange={e => setAdminEmail(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-[#c9a84c]/40 focus:outline-none"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={adminPassword}
-                onChange={e => setAdminPassword(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && onAdminLogin()}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-[#c9a84c]/40 focus:outline-none"
-              />
-              {adminError && <p className="text-red-400 text-[10px]">{adminError}</p>}
-              <button
-                onClick={onAdminLogin}
-                disabled={adminLoading}
-                className="w-full py-2 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-lg text-xs transition-colors disabled:opacity-50"
-              >
-                {adminLoading ? "Signing in..." : "Sign In as Admin"}
-              </button>
-            </div>
-            <div className="border-t border-white/8 pt-3 space-y-2">
-              <p className="text-white/50 text-xs font-semibold">Volunteer Scanner Token</p>
-              <input
-                type="text"
-                placeholder="e.g. SCAN-FXB99Z"
-                value={tokenInput}
-                onChange={e => setTokenInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && loginWithToken()}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-blue-500/40 focus:outline-none font-mono"
-              />
-              {tokenError && <p className="text-red-400 text-[10px]">{tokenError}</p>}
-              <button
-                onClick={loginWithToken}
-                disabled={tokenLoading}
-                className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-xs transition-colors disabled:opacity-50"
-              >
-                {tokenLoading ? "Verifying..." : "Access Scanner"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {screen === "scanner" && (
-          <ScannerScreen
-            allowTestMode={!!session}
-            onClose={() => {
-              if (!session) { setScannerToken(null); setScreen("login"); }
-              else setScreen("dashboard");
-            }}
-          />
-        )}
-
-        {screen === "dashboard" && session && (
-          <AdminDashboardCompact onSignOut={async () => {
-            await getSupabase().auth.signOut();
-            setScreen("login");
-          }} />
-        )}
-
-        {screen === "tokens" && session && (
-          <TokenManagerScreen />
-        )}
-      </div>
-    </div>
-    </motion.div>
-  );
-}
-
-// ─── Camera Scanner Screen ─────────────────────────────────────────────────────
-
-function ScannerScreen({ onClose, allowTestMode = false }: { onClose: () => void; allowTestMode?: boolean }) {
-  const scannerRef = useRef<HTMLDivElement>(null);
-  const scannerInstance = useRef<any>(null);
-  const [scanResult, setScanResult] = useState<{ ok: boolean; msg: string } | null>(null);
-  const [processing, setProcessing] = useState(false);
-  const [cameraError, setCameraError] = useState("");
-  const [manualId, setManualId] = useState("");
-  const [testMode, setTestMode] = useState(false);
-
-  async function processId(rawId: string) {
-    if (processing) return;
-    const id = rawId.trim().toUpperCase();
-    if (!id) return;
-
-    // ── Date gate: attendance only allowed on 15 Aug 2026 ──
-    // Skip date gate if test mode is enabled (admin only)
-    if (!testMode) {
-      const now = new Date();
-      const eventDay = new Date("2026-08-15T00:00:00+05:30");
-      const eventDayEnd = new Date("2026-08-16T00:00:00+05:30");
-      if (now < eventDay || now >= eventDayEnd) {
-        setScanResult({ ok: false, msg: "🔒 Check-in is only allowed on 15 August 2026." });
-        setTimeout(() => setScanResult(null), 5000);
-        return;
-      }
-    }
-
-    setProcessing(true);
-    setScanResult(null);
-    const { data, error } = await getSupabase()
-      .from("registrations").select("id,name,attended").eq("id", id).single();
-    if (error || !data) {
-      setScanResult({ ok: false, msg: `❌ Not found: ${id}` });
-    } else if (data.attended) {
-      setScanResult({ ok: false, msg: `⚠️ Already checked in — ${data.name}` });
-    } else {
-      await getSupabase().from("registrations").update({ attended: true }).eq("id", id);
-      setScanResult({ ok: true, msg: `✅ Entry granted — ${data.name}` });
-    }
-    setProcessing(false);
-    setTimeout(() => setScanResult(null), 4000);
-  }
-
-  useEffect(() => {
-    let mounted = true;
-    const initScanner = async () => {
-      if (!scannerRef.current) return;
-      try {
-        const instance = new Html5Qrcode("qr-reader-box");
-        scannerInstance.current = instance;
-        await instance.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 200, height: 200 } },
-          (decodedText: string) => {
-            if (!processing && mounted) processId(decodedText);
-          },
-          () => {}
-        );
-      } catch (err: any) {
-        if (mounted) setCameraError(err?.message || "Camera not available");
-      }
-    };
-    initScanner();
-    return () => {
-      mounted = false;
-      scannerInstance.current?.stop().catch(() => {});
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <div className="p-3 space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="text-white/60 text-xs font-semibold">QR Check-In Scanner</span>
-        <div className="flex items-center gap-2">
-          {allowTestMode && (
-            <button
-              onClick={() => setTestMode(prev => !prev)}
-              className={`text-[10px] font-mono px-2 py-1 rounded border transition-colors ${
-                testMode
-                  ? "bg-yellow-500/20 border-yellow-500/40 text-yellow-400"
-                  : "bg-white/5 border-white/10 text-white/30 hover:text-white/60"
-              }`}
-            >
-              {testMode ? "🧪 TEST MODE ON" : "TEST MODE"}
-            </button>
-          )}
-          <button onClick={onClose} className="text-white/30 hover:text-white text-[10px] font-mono">← Back</button>
-        </div>
-      </div>
-      {testMode && (
-        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-3 py-1.5 text-yellow-400 text-[10px] font-mono text-center">
-          ⚠️ Test mode active — date lock bypassed. Scans mark attendance in database.
-        </div>
-      )}
-      {cameraError ? (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-red-400 text-xs text-center">
-          {cameraError}<br/>
-          <span className="text-white/30 text-[10px]">Use manual entry below</span>
-        </div>
-      ) : (
-        <div className="relative">
-          <div id="qr-reader-box" ref={scannerRef} className="w-full rounded-xl overflow-hidden border border-white/10" />
-          {processing && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-xl">
-              <div className="w-5 h-5 border-2 border-[#c9a84c]/30 border-t-[#c9a84c] rounded-full animate-spin" />
-            </div>
-          )}
-        </div>
-      )}
-
-      <AnimatePresence>
-        {scanResult && (
-          <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className={`text-xs text-center py-2 px-3 rounded-lg border font-semibold ${scanResult.ok ? "bg-green-500/15 border-green-500/30 text-green-400" : "bg-red-500/15 border-red-500/30 text-red-400"}`}
-          >
-            {scanResult.msg}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="border-t border-white/8 pt-2 space-y-2">
-        <p className="text-white/30 text-[10px] font-mono text-center">Manual entry</p>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="POY26-XXXXXXXX"
-            value={manualId}
-            onChange={e => setManualId(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && processId(manualId) && setManualId("")}
-            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-[#c9a84c]/40 focus:outline-none font-mono"
-          />
-          <button
-            onClick={() => { processId(manualId); setManualId(""); }}
-            className="px-3 py-2 bg-[#c9a84c] text-[#07090f] rounded-lg text-xs font-bold hover:bg-[#d4b55f] transition-colors"
-          >
-            <Send className="w-3 h-3" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Compact Admin Dashboard ───────────────────────────────────────────────────
-
-function AdminDashboardCompact({ onSignOut }: { onSignOut: () => void }) {
-  const [regs, setRegs] = useState<Registration[]>([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getSupabase()
-      .from("registrations").select("*").order("timestamp", { ascending: false })
-      .then(({ data }) => { if (data) setRegs(data as Registration[]); setLoading(false); });
-  }, []);
-
-  const filtered = regs.filter(r =>
-    r.name.toLowerCase().includes(search.toLowerCase()) ||
-    r.email.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const stats = {
-    total: regs.length,
-    attended: regs.filter(r => r.attended).length,
-  };
-
-  function exportCSV() {
-    const csv = [
-      "ID,Name,Email,Phone,Age,Church,City,Attended,Questions,Prayer Requests,Date",
-      ...regs.map(r => [
-        r.id,
-        `"${(r.name || "").replace(/"/g, '""')}"`,
-        r.email,
-        r.phone,
-        r.age,
-        `"${(r.church || "").replace(/"/g, '""')}"`,
-        `"${(r.city || "").replace(/"/g, '""')}"`,
-        r.attended,
-        `"${(r.questions || "").replace(/"/g, '""')}"`,
-        `"${(r.prayer_requests || "").replace(/"/g, '""')}"`,
-        r.timestamp || "",
-      ].join(","))
-    ].join("\n");
-    const a = document.createElement("a");
-    a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
-    a.download = "poy2026_registrations.csv";
-    a.click();
-  }
-
-  return (
-    <div className="p-3 space-y-3">
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-2">
-        {[
-          { label: "Total", value: stats.total, icon: <Users className="w-3 h-3" /> },
-          { label: "Attended", value: stats.attended, icon: <CheckCircle className="w-3 h-3" /> },
-        ].map(s => (
-          <div key={s.label} className="bg-white/4 border border-white/8 rounded-xl p-3 flex items-center gap-2">
-            <span className="text-[#c9a84c]">{s.icon}</span>
-            <div>
-              <p className="text-white font-bold text-sm">{s.value}</p>
-              <p className="text-white/40 text-[10px]">{s.label}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Attendance bar */}
-      <div>
-        <div className="flex justify-between text-[10px] text-white/40 mb-1">
-          <span>Attendance Rate</span>
-          <span className="text-[#c9a84c]">{stats.total ? Math.round((stats.attended / stats.total) * 100) : 0}%</span>
-        </div>
-        <div className="w-full bg-white/10 rounded-full h-1.5">
-          <div className="bg-[#c9a84c] h-1.5 rounded-full" style={{ width: `${stats.total ? (stats.attended / stats.total) * 100 : 0}%` }} />
-        </div>
-      </div>
-
-      <button onClick={exportCSV} className="w-full flex items-center justify-center gap-2 py-2 bg-[#c9a84c]/10 border border-[#c9a84c]/20 text-[#c9a84c] rounded-xl text-xs hover:bg-[#c9a84c]/20 transition-colors">
-        <Download className="w-3 h-3" />
-        Export CSV
-      </button>
-
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Search registrations..."
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-[#c9a84c]/40 focus:outline-none"
-      />
-
-      {/* List */}
-      <div className="space-y-1.5 max-h-96 overflow-y-auto">
-        {loading ? (
-          <p className="text-white/30 text-[10px] text-center py-4">Loading...</p>
-        ) : filtered.length === 0 ? (
-          <p className="text-white/30 text-[10px] text-center py-4">No results</p>
-        ) : filtered.slice(0, 30).map(r => (
-          <div key={r.id} className="bg-white/3 border border-white/6 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-white text-xs font-medium truncate">{r.name}</p>
-              <p className="text-white/30 text-[10px] truncate">{r.church}</p>
-            </div>
-            <span className={`shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-mono ${r.attended ? "bg-green-500/20 text-green-400" : "bg-white/8 text-white/30"}`}>
-              {r.attended ? "✓" : "—"}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <button onClick={onSignOut} className="w-full flex items-center justify-center gap-1.5 py-1.5 text-white/30 hover:text-white/60 text-[10px] font-mono transition-colors border-t border-white/5 pt-2">
-        <LogOut className="w-3 h-3" />
-        Sign out
-      </button>
-    </div>
-  );
-}
-
-// ─── Token Manager Screen ──────────────────────────────────────────────────────
-
-function TokenManagerScreen() {
-  type Token = { id: string; token: string; label: string; active: boolean; created_at: string };
-  const [tokens, setTokens] = useState<Token[]>([]);
-  const [newLabel, setNewLabel] = useState("");
-  const [creating, setCreating] = useState(false);
-
-  async function fetchTokens() {
-    const { data } = await getSupabase().from("scanner_tokens").select("*").order("created_at", { ascending: false });
-    if (data) setTokens(data as Token[]);
-  }
-
-  useEffect(() => { fetchTokens(); }, []);
-
-  async function createToken() {
-    if (!newLabel.trim()) return;
-    setCreating(true);
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let code = "SCAN-";
-    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-    const { error } = await getSupabase().from("scanner_tokens").insert({ token: code, label: newLabel.trim(), active: true });
-    if (error) console.error("Create token error:", error);
-    setNewLabel("");
-    setCreating(false);
-    fetchTokens();
-  }
-
-  async function toggleToken(id: string, active: boolean) {
-    const { error } = await getSupabase().from("scanner_tokens").update({ active: !active }).eq("id", id);
-    if (error) console.error("Toggle token error:", error);
-    fetchTokens();
-  }
-
-  async function deleteToken(id: string) {
-    const { error } = await getSupabase().from("scanner_tokens").delete().eq("id", id);
-    if (error) console.error("Delete token error:", error);
-    fetchTokens();
-  }
-
-  return (
-    <div className="p-3 space-y-3">
-      <p className="text-white/60 text-xs font-semibold">Volunteer Scanner Tokens</p>
-
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Volunteer name"
-          value={newLabel}
-          onChange={e => setNewLabel(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && createToken()}
-          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:border-[#c9a84c]/40 focus:outline-none"
-        />
-        <button
-          onClick={createToken}
-          disabled={creating}
-          className="px-3 py-2 bg-[#c9a84c] text-[#07090f] rounded-lg text-xs font-bold hover:bg-[#d4b55f] transition-colors disabled:opacity-50"
-        >
-          + Add
-        </button>
-      </div>
-
-      <div className="space-y-1.5 max-h-96 overflow-y-auto">
-        {tokens.length === 0 ? (
-          <p className="text-white/30 text-[10px] text-center py-3">No tokens yet</p>
-        ) : tokens.map(t => (
-          <div key={t.id} className="bg-white/3 border border-white/6 rounded-lg px-3 py-2 flex items-center gap-2">
-            <div className="flex-1 min-w-0">
-              <p className="text-white text-xs font-mono">{t.token}</p>
-              <p className="text-white/40 text-[10px] truncate">{t.label}</p>
-            </div>
-            <button
-              onClick={() => toggleToken(t.id, t.active)}
-              className={`shrink-0 text-[9px] px-2 py-1 rounded-full font-mono border transition-colors ${t.active ? "bg-green-500/20 text-green-400 border-green-500/30 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30" : "bg-white/5 text-white/30 border-white/10 hover:bg-green-500/20 hover:text-green-400"}`}
-            >
-              {t.active ? "Active" : "Paused"}
-            </button>
-            <button onClick={() => deleteToken(t.id)} className="text-white/20 hover:text-red-400 transition-colors">
-              <X className="w-3 h-3" />
-            </button>
-          </div>
-        ))}
-      </div>
-      <p className="text-white/20 text-[9px] font-mono text-center">Share token code with volunteer to grant scanner access</p>
-    </div>
-  );
-}
-
 function RetrieveModal({
   onClose,
 }: {
@@ -3863,7 +3214,7 @@ function RetrieveModal({
 
               {message && (
                 <p className="text-red-400 text-xs mt-1">
-                  ⚠️ {message}
+                  âš ï¸ {message}
                 </p>
               )}
 
@@ -3899,7 +3250,7 @@ function RetrieveModal({
 
               {message && (
                 <p className="text-red-400 text-xs mt-1">
-                  ⚠️ {message}
+                  âš ï¸ {message}
                 </p>
               )}
 
@@ -4002,7 +3353,7 @@ function RetrieveModal({
                     }}
                     className="w-full py-3 border border-[#c9a84c]/40 text-[#c9a84c] rounded-xl text-sm font-semibold hover:bg-[#c9a84c]/10 transition-colors flex items-center justify-center gap-2"
                   >
-                    ✏️ Edit Your Response
+                    âœï¸ Edit Your Response
                   </button>
                 </div>
               </div>
@@ -4055,9 +3406,9 @@ function RetrieveModal({
                     className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${editErrors.age ? "border-red-500/50" : "border-white/10 focus:border-[#c9a84c]/40"}`}
                   >
                     <option value="" className="bg-[#0d1020]">Select age</option>
-                    <option value="13-17" className="bg-[#0d1020]">13–17 years</option>
-                    <option value="18-24" className="bg-[#0d1020]">18–24 years</option>
-                    <option value="25-35" className="bg-[#0d1020]">25–35 years</option>
+                    <option value="13-17" className="bg-[#0d1020]">13â€“17 years</option>
+                    <option value="18-24" className="bg-[#0d1020]">18â€“24 years</option>
+                    <option value="25-35" className="bg-[#0d1020]">25â€“35 years</option>
                     <option value="35+" className="bg-[#0d1020]">35+ years</option>
                   </select>
                   {editErrors.age && <p className="text-red-400 text-xs mt-1">{editErrors.age}</p>}
@@ -4240,7 +3591,7 @@ function AdminLoginModal({
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:border-[#c9a84c]/50 focus:outline-none transition-colors text-sm"
               />
             </div>

@@ -1,6 +1,8 @@
 import { createRoot } from "react-dom/client";
 import { Component, type ReactNode } from "react";
+import { HashRouter, Routes, Route } from "react-router";
 import App from "./app/App.tsx";
+import AdminPortal from "./app/AdminPortal.tsx";
 import "./styles/index.css";
 
 // ─── Global Error Boundary ────────────────────────────────────────────────────
@@ -188,6 +190,11 @@ class ErrorBoundary extends Component<{ children: ReactNode }, EBState> {
 // ─── Mount ────────────────────────────────────────────────────────────────────
 createRoot(document.getElementById("root")!).render(
   <ErrorBoundary>
-    <App />
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/admin" element={<AdminPortal />} />
+      </Routes>
+    </HashRouter>
   </ErrorBoundary>
 );

@@ -55,7 +55,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-// â”€â”€â”€ Pass Image Generator â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Pass Image Generator ─────────────────────────────────────────────────────
 
 const generatePassDataUrl = async (
   element: HTMLDivElement | null,
@@ -108,7 +108,7 @@ const generatePassDataUrl = async (
       const svgElement = element?.querySelector("svg");
       if (svgElement) {
         let svgString = new XMLSerializer().serializeToString(svgElement);
-        // Remove ALL rect elements â€” the white background is already drawn by canvas above
+        // Remove ALL rect elements — the white background is already drawn by canvas above
         // Leaving only the black QR dot paths on the white canvas box
         svgString = svgString.replace(/<rect[^>]*\/?>/gi, "");
         const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
@@ -193,7 +193,7 @@ const savePassAsImage = async (
   alert("Could not download automatically. Please take a screenshot of your pass!");
 };
 
-// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface Registration {
   id: string;
   name: string;
@@ -216,7 +216,7 @@ interface CountdownValue {
   seconds: number;
 }
 
-// â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Constants ────────────────────────────────────────────────────────────────
 const EVENT_DATE = new Date("2026-08-15T09:30:00+05:30");
 
 const POPULAR_CITIES = [
@@ -368,7 +368,7 @@ const GALLERY_IMAGES = [
   { image: poy6, alt: "Event stage lights" },
 ];
 
-// â”€â”€â”€ Utilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Utilities ────────────────────────────────────────────────────────────────
 function generateRegId(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let id = "POY26-";
@@ -405,7 +405,7 @@ function useCountdown(target: Date): CountdownValue {
   return value;
 }
 
-// â”€â”€â”€ Sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function YouTubeIcon({ className }: { className?: string }) {
   return (
@@ -517,7 +517,7 @@ function CountdownBlock({
   );
 }
 
-// â”€â”€â”€ Sections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Sections ─────────────────────────────────────────────────────────────────
 
 function Navbar({
   onRegister,
@@ -731,7 +731,7 @@ function Hero({
       <div className="absolute inset-0">
         <ImageWithFallback
           src={heroBg}
-          alt="Hourglass and glowing doorway â€” Power of Youth 2026 backdrop"
+          alt="Hourglass and glowing doorway — Power of Youth 2026 backdrop"
           className="w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#07090f]/50 via-[#07090f]/20 to-[#07090f]" />
@@ -785,7 +785,7 @@ function Hero({
           transition={{ duration: 0.7, delay: 0.35 }}
           className="text-white/50 font-mono text-sm mb-6"
         >
-          <span className="text-[#c9a84c] font-bold">15 August 2026</span> Â· 9:30 AM
+          <span className="text-[#c9a84c] font-bold">15 August 2026</span> · 9:30 AM
         </motion.p>
 
         <motion.div
@@ -828,7 +828,7 @@ function Hero({
             onClick={onRegister}
             className="group px-8 py-4 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-full flex items-center gap-2 transition-all duration-300 hover:shadow-[0_0_40px_rgba(201,168,76,0.5)] text-sm"
           >
-            Register Now â€” Free
+            Register Now — Free
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
           <button
@@ -887,7 +887,7 @@ function EventBanner({
           <div className="relative rounded-2xl md:rounded-3xl overflow-hidden border border-[#c9a84c]/20 shadow-[0_0_60px_rgba(201,168,76,0.12)]">
             <ImageWithFallback
               src={eventBanner}
-              alt="Power of Youth 2026 â€” Your Story Isn't Over. 15 Aug 2026, 9:30 AM. Maranatha Temple, Vijayawada. Featuring Pas. Bhanu Chand Alluri and Rev. Sammy Thangiah."
+              alt="Power of Youth 2026 — Your Story Isn't Over. 15 Aug 2026, 9:30 AM. Maranatha Temple, Vijayawada. Featuring Pas. Bhanu Chand Alluri and Rev. Sammy Thangiah."
               className="w-full h-auto object-cover block"
             />
 
@@ -938,7 +938,7 @@ function About() {
     {
       icon: <BookOpen className="w-5 h-5" />,
       title: "Scripture Focus",
-      desc: "Rooted in Romans 8:28 â€” all things work together for good",
+      desc: "Rooted in Romans 8:28 — all things work together for good",
     },
   ];
 
@@ -964,7 +964,7 @@ function About() {
             Power of Youth 2026 is a one-day spiritual gathering
             designed for young people aged 17-40 who are seeking
             a fresh encounter with God. Whether you are walking
-            through pain, confusion, or simply hunger for more â€”
+            through pain, confusion, or simply hunger for more —
             this is your day.
           </p>
         </motion.div>
@@ -992,7 +992,7 @@ function About() {
                     for the good of those who love him."
                   </p>
                   <p className="text-[#c9a84c] text-xs mt-1 font-mono">
-                    â€” Romans 8:28
+                    — Romans 8:28
                   </p>
                 </div>
               </div>
@@ -1035,7 +1035,7 @@ function About() {
                 lives since 2006. Each year, hundreds return
                 with testimonies of healing, calling, and
                 renewed faith. Your story is not written by your
-                past â€” come discover what God has next.
+                past — come discover what God has next.
               </p>
             </div>
           </motion.div>
@@ -1644,7 +1644,7 @@ function Contact() {
   );
 }
 
-// â”€â”€â”€ Registration Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Registration Modal ────────────────────────────────────────────────────────
 
 function EventPassCard({
   registrationId,
@@ -1694,7 +1694,7 @@ function EventPassCard({
         }}
       />
 
-      {/* â”€â”€ QR Code â€” white background for maximum scannability â”€â”€ */}
+      {/* ── QR Code — white background for maximum scannability ── */}
       <div
         style={{
           position: "absolute",
@@ -1723,7 +1723,7 @@ function EventPassCard({
         />
       </div>
 
-      {/* â”€â”€ Name â”€â”€ */}
+      {/* ── Name ── */}
       <div
         style={{
           position: "absolute",
@@ -1746,7 +1746,7 @@ function EventPassCard({
         {name}
       </div>
 
-      {/* â”€â”€ Church / City â”€â”€ */}
+      {/* ── Church / City ── */}
       <div
         style={{
           position: "absolute",
@@ -1769,7 +1769,7 @@ function EventPassCard({
         {church}{city ? ` - ${city}` : ""}
       </div>
 
-      {/* â”€â”€ Registration ID â”€â”€ */}
+      {/* ── Registration ID ── */}
       <div
         style={{
           position: "absolute",
@@ -1869,8 +1869,8 @@ function RegistrationModal({
               },
             });
             if (!fnError) {
-              console.log(`âœ… Ticket email sent (attempt ${attempt})`);
-              return; // success â€” stop retrying
+              console.log(`✅ Ticket email sent (attempt ${attempt})`);
+              return; // success — stop retrying
             }
             lastErr = fnError;
           } catch (err) {
@@ -1881,7 +1881,7 @@ function RegistrationModal({
             await new Promise((r) => setTimeout(r, attempt * 2000));
           }
         }
-        // All 3 attempts failed â€” log silently, don't block the user
+        // All 3 attempts failed — log silently, don't block the user
         console.error("Failed to send ticket email after 3 attempts:", lastErr);
       };
       sendEmailWithRetry();
@@ -1920,7 +1920,7 @@ function RegistrationModal({
     setSubmitError(null);
     setLoading(true);
 
-    // â”€â”€ Duplicate check: email â”€â”€
+    // ── Duplicate check: email ──
     const { data: emailCheck } = await getSupabase()
       .from("registrations")
       .select("id")
@@ -1932,7 +1932,7 @@ function RegistrationModal({
       return;
     }
 
-    // â”€â”€ Duplicate check: phone â”€â”€
+    // ── Duplicate check: phone ──
     const normalize = (p: string) => p.replace(/[\s\-\(\)\+]/g, "").slice(-10);
     const { data: allRegs } = await getSupabase()
       .from("registrations")
@@ -1970,7 +1970,7 @@ function RegistrationModal({
           ? "You appear to be already registered. Use \"Already Registered?\" to retrieve your pass."
           : error.message?.includes("network")
           ? "Connection error. Please check your internet and try again."
-          : "Registration failed â€” please try again. If the issue persists, contact the event team.";
+          : "Registration failed — please try again. If the issue persists, contact the event team.";
       setSubmitError(msg);
       return;
     }
@@ -2069,7 +2069,7 @@ function RegistrationModal({
                   Secure Your Seat
                 </h2>
                 <p className="text-white/40 text-xs mt-1">
-                  Power of Youth 2026 Â· 15 August Â· Free Entry
+                  Power of Youth 2026 · 15 August · Free Entry
                 </p>
               </div>
             </div>
@@ -2121,19 +2121,19 @@ function RegistrationModal({
                       value="13-17"
                       className="bg-[#0d1020]"
                     >
-                      13â€“17 years
+                      13–17 years
                     </option>
                     <option
                       value="18-24"
                       className="bg-[#0d1020]"
                     >
-                      18â€“24 years
+                      18–24 years
                     </option>
                     <option
                       value="25-35"
                       className="bg-[#0d1020]"
                     >
-                      25â€“35 years
+                      25–35 years
                     </option>
                     <option
                       value="35+"
@@ -2276,10 +2276,10 @@ function RegistrationModal({
                 </p>
               )}
 
-              {/* â”€â”€ Submit Error Banner â”€â”€ */}
+              {/* ── Submit Error Banner ── */}
               {submitError && (
                 <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
-                  <span className="text-red-400 text-lg leading-none mt-0.5">âš </span>
+                  <span className="text-red-400 text-lg leading-none mt-0.5">⚠️</span>
                   <div>
                     <p className="text-red-400 text-xs font-semibold mb-0.5">Registration Failed</p>
                     <p className="text-red-400/80 text-xs leading-relaxed">{submitError}</p>
@@ -2351,452 +2351,8 @@ function RegistrationModal({
   );
 }
 
-// â”€â”€â”€ Admin Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-function AdminDashboard({ onClose }: { onClose: () => void }) {
-  const [regs, setRegs] = useState<Registration[]>([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState<
-    "overview" | "registrations" | "scan"
-  >("overview");
-  const [scanInput, setScanInput] = useState("");
-  const [scanResult, setScanResult] = useState<string | null>(
-    null,
-  );
-
-  useEffect(() => {
-    fetchRegs();
-  }, []);
-  const fetchRegs = async () => {
-    setLoading(true);
-    const { data, error } = await getSupabase()
-      .from("registrations")
-      .select("*")
-      .order("timestamp", { ascending: false });
-    setLoading(false);
-    if (!error && data) setRegs(data as Registration[]);
-  };
-
-  const toggleAttendance = async (
-    id: string,
-    current: boolean,
-  ) => {
-    const { error } = await getSupabase()
-      .from("registrations")
-      .update({ attended: !current })
-      .eq("id", id);
-    if (!error) {
-      setRegs((prev) =>
-        prev.map((r) =>
-          r.id === id ? { ...r, attended: !current } : r,
-        ),
-      );
-    }
-  };
-
-  const handleScan = async () => {
-    // â”€â”€ Date gate: attendance only allowed on 15 Aug 2026 â”€â”€
-    const now = new Date();
-    const eventDay = new Date("2026-08-15T00:00:00+05:30");
-    const eventDayEnd = new Date("2026-08-16T00:00:00+05:30");
-    if (now < eventDay || now >= eventDayEnd) {
-      setScanResult("ðŸ”’ Attendance check-in is only allowed on 15 August 2026.");
-      setScanInput("");
-      setTimeout(() => setScanResult(null), 5000);
-      return;
-    }
-
-    const scannedId = scanInput.trim().toUpperCase();
-    const { data, error } = await getSupabase()
-      .from("registrations")
-      .select("*")
-      .eq("id", scannedId)
-      .single();
-    if (error || !data) {
-      setScanResult("âŒ Registration ID not found");
-    } else if (data.attended) {
-      setScanResult(`âš ï¸ Already Checked In â€” ${data.name}`);
-    } else {
-      await getSupabase()
-        .from("registrations")
-        .update({ attended: true })
-        .eq("id", scannedId);
-      setRegs((prev) =>
-        prev.map((r) =>
-          r.id === scannedId ? { ...r, attended: true } : r,
-        ),
-      );
-      setScanResult(`âœ… Entry granted for ${data.name}`);
-    }
-    setScanInput("");
-    setTimeout(() => setScanResult(null), 4000);
-  };
-
-  const [sendingId, setSendingId] = useState<string | null>(null);
-
-  const resendAdminPassEmail = async (r: Registration) => {
-    setSendingId(r.id);
-    try {
-      const dataUrl = await generatePassDataUrl(null, r.id, {
-        name: r.name,
-        church: r.church,
-        city: r.city,
-      });
-      const base64Data = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
-      await getSupabase().functions.invoke("send-ticket", {
-        body: {
-          email: r.email.trim().toLowerCase(),
-          name: r.name,
-          registrationId: r.id,
-          image: base64Data,
-        },
-      });
-      alert(`Pass email sent successfully to ${r.email}`);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to send pass email.");
-    } finally {
-      setSendingId(null);
-    }
-  };
-
-  const filtered = regs.filter(
-    (r) =>
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      r.email.toLowerCase().includes(search.toLowerCase()) ||
-      r.id.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  const stats = {
-    total: regs.length,
-    attended: regs.filter((r) => r.attended).length,
-    cities: [...new Set(regs.map((r) => r.city))].length,
-    today: regs.filter((r) =>
-      r.timestamp?.startsWith(
-        new Date().toISOString().split("T")[0],
-      ),
-    ).length,
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/90 backdrop-blur flex items-center justify-center p-4"
-    >
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-4xl bg-[#0a0d1a] border border-[#c9a84c]/15 rounded-3xl overflow-hidden max-h-[90vh] flex flex-col"
-      >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-[#c9a84c]" />
-            <span className="text-white font-semibold text-sm">
-              Admin Dashboard
-            </span>
-            <span className="text-xs text-green-400/70 font-mono ml-2">
-              â— LIVE
-            </span>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-white/40 hover:text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="flex border-b border-white/5 bg-white/2 px-6 py-2 gap-2 flex-wrap">
-          {[
-            { id: "overview", label: "Overview", icon: <BarChart2 className="w-4 h-4" /> },
-            { id: "registrations", label: "Registrations", icon: <Users className="w-4 h-4" /> },
-            { id: "scan", label: "Check-In Scanner", icon: <QrCode className="w-4 h-4" /> },
-          ].map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id as any)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-200 ${
-                tab === t.id
-                  ? "bg-[#c9a84c] text-[#07090f] shadow-lg shadow-[#c9a84c]/20"
-                  : "text-white/60 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              {t.icon}
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-6">
-          {tab === "overview" && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[
-                    {
-                      label: "Total Registered",
-                      value: stats.total,
-                      icon: <Users className="w-4 h-4" />,
-                    },
-                    {
-                      label: "Attended",
-                      value: stats.attended,
-                      icon: <CheckCircle className="w-4 h-4" />,
-                    },
-                    {
-                      label: "Cities",
-                      value: stats.cities,
-                      icon: <MapPin className="w-4 h-4" />,
-                    },
-                    {
-                      label: "Today",
-                      value: stats.today,
-                      icon: <Sparkles className="w-4 h-4" />,
-                    },
-                  ].map((s) => (
-                    <div
-                      key={s.label}
-                      className="bg-white/4 border border-white/8 rounded-2xl p-5"
-                    >
-                      <div className="flex items-center gap-2 text-[#c9a84c] mb-2">
-                        {s.icon}
-                      </div>
-                      <p className="text-3xl font-bold text-white font-['Playfair_Display']">
-                        {s.value}
-                      </p>
-                      <p className="text-white/40 text-xs mt-1">
-                        {s.label}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="bg-white/4 border border-white/8 rounded-2xl p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-white font-semibold text-sm">
-                      Attendance Rate
-                    </h4>
-                    <span className="text-[#c9a84c] font-mono text-sm">
-                      {stats.total
-                        ? Math.round(
-                            (stats.attended / stats.total) *
-                              100,
-                          )
-                        : 0}
-                      %
-                    </span>
-                  </div>
-                  <div className="w-full bg-white/10 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-[#c9a84c] to-[#e8914a] h-2 rounded-full transition-all duration-500"
-                      style={{
-                        width: `${stats.total ? (stats.attended / stats.total) * 100 : 0}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={fetchRegs}
-                    disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white rounded-xl text-xs hover:bg-white/10 transition-colors disabled:opacity-50"
-                  >
-                    <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                    Refresh
-                  </button>
-                  <button
-                    onClick={async () => {
-                      const csv = [
-                        "ID,Name,Email,Phone,Age,Church,City,Attended,Date",
-                        ...regs.map(
-                          (r) =>
-                            `${r.id},"${(r.name || "").replace(/"/g, '""')}",${r.email},${r.phone},${r.age},"${(r.church || "").replace(/"/g, '""')}","${(r.city || "").replace(/"/g, '""')}",${r.attended},${r.timestamp || ""}`,
-                        ),
-                      ].join("\n");
-                      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-                      if ('showSaveFilePicker' in window) {
-                        try {
-                          const fh = await (window as any).showSaveFilePicker({ suggestedName: 'poy2026_registrations.csv', types: [{ description: 'CSV File', accept: { 'text/csv': ['.csv'] } }] });
-                          const w = await fh.createWritable();
-                          await w.write(blob);
-                          await w.close();
-                          return;
-                        } catch (e: any) { if (e.name === 'AbortError') return; }
-                      }
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = "poy2026_registrations.csv";
-                      a.style.display = "none";
-                      document.body.appendChild(a);
-                      a.click();
-                      document.body.removeChild(a);
-                      URL.revokeObjectURL(url);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#c9a84c]/10 border border-[#c9a84c]/20 text-[#c9a84c] rounded-xl text-xs hover:bg-[#c9a84c]/20 transition-colors"
-                  >
-                    <Download className="w-4 h-4" />
-                    Export CSV
-                  </button>
-                  <button
-                    onClick={async () => {
-                      await getSupabase()
-                        .from("registrations")
-                        .delete()
-                        .neq("id", "");
-                      setRegs([]);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs hover:bg-red-500/20 transition-colors"
-                  >
-                    Clear Test Data
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {tab === "registrations" && (
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Search by name, email, or ID..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50"
-                />
-
-                {filtered.length === 0 ? (
-                  <div className="text-center py-12 text-white/30 text-sm">
-                    {regs.length === 0
-                      ? "No registrations yet â€” register using the main form!"
-                      : "No results found"}
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {filtered.map((r) => (
-                      <div
-                        key={r.id}
-                        className="bg-white/4 border border-white/8 rounded-xl p-4 flex items-center justify-between gap-4"
-                      >
-                        <div>
-                          <p className="text-white font-medium text-sm">
-                            {r.name}
-                          </p>
-                          <p className="text-white/40 text-xs">
-                            {r.email} Â· {r.church}
-                          </p>
-                          <p className="text-[#c9a84c] text-xs font-mono mt-0.5">
-                            {r.id}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => resendAdminPassEmail(r)}
-                            disabled={sendingId === r.id}
-                            className="shrink-0 px-2.5 py-1.5 rounded-xl text-xs bg-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/20 hover:bg-[#c9a84c]/20 transition-colors flex items-center gap-1 disabled:opacity-50"
-                            title="Resend pass email to user"
-                          >
-                            <Mail className="w-3.5 h-3.5" />
-                            {sendingId === r.id ? "Sending..." : "Resend Email"}
-                          </button>
-                          <button
-                            onClick={() =>
-                              toggleAttendance(r.id, r.attended)
-                            }
-                            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-mono transition-colors ${
-                              r.attended
-                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                : "bg-white/10 text-white/40 border border-white/10 hover:border-[#c9a84c]/30"
-                            }`}
-                          >
-                            {r.attended
-                              ? "âœ“ Attended"
-                              : "Mark Present"}
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {tab === "scan" && (
-              <div className="max-w-sm mx-auto text-center space-y-6">
-                <div className="w-20 h-20 rounded-full bg-[#c9a84c]/10 flex items-center justify-center mx-auto">
-                  <QrCode className="w-10 h-10 text-[#c9a84c]" />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-1">
-                    QR Code Scanner
-                  </h3>
-                  <p className="text-white/40 text-sm">
-                    Enter or paste a registration ID to mark
-                    attendance
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="e.g. POY26-ABC12345"
-                    value={scanInput}
-                    onChange={(e) =>
-                      setScanInput(e.target.value)
-                    }
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && handleScan()
-                    }
-                    className="flex-1 bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 outline-none focus:ring-1 focus:ring-[#c9a84c]/50 font-mono"
-                  />
-                  <button
-                    onClick={handleScan}
-                    className="px-4 py-3 bg-[#c9a84c] text-[#07090f] font-bold rounded-xl hover:bg-[#d4b55f] transition-colors"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </div>
-                <AnimatePresence>
-                  {scanResult && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm"
-                    >
-                      {scanResult}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
-        </div>
-
-        <div className="border-t border-white/5 px-6 py-3 flex items-center justify-between">
-          <span className="text-white/20 text-xs font-mono">
-            POY 2026 Admin v1.0
-          </span>
-          <button
-            onClick={async () => {
-              await getSupabase().auth.signOut().catch(() => {});
-              setSession(null);
-              onClose();
-            }}
-            className="flex items-center gap-1.5 text-white/30 hover:text-white/60 text-xs transition-colors"
-          >
-            <LogOut className="w-3 h-3" />
-            Sign out
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-// â”€â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Footer ───────────────────────────────────────────────────────────────────
 
 function Footer({ 
   onRegister,
@@ -2859,7 +2415,7 @@ function Footer({
               <p>15 August 2026, Saturday</p>
               <p>9:30 AM </p>
               <p>Maranatha Temple, Vijayawada</p>
-              <p>Free Entry Â· All Welcome</p>
+              <p>Free Entry · All Welcome</p>
             </div>
             <button
               onClick={onRegister}
@@ -2874,9 +2430,9 @@ function Footer({
         <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <p className="text-white/20 text-xs font-mono">
-              Â© 2026 Maranatha Visvasa Samajam. All rights reserved.
+              © 2026 Maranatha Visvasa Samajam. All rights reserved.
             </p>
-            <span className="text-white/10 text-xs font-mono">â€¢</span>
+            <span className="text-white/10 text-xs font-mono">•</span>
             <a
               href="/#/admin"
               className="text-white/10 hover:text-white/30 text-[8px] font-mono transition-colors tracking-widest"
@@ -2949,7 +2505,7 @@ function Footer({
           </div>
 
           <p className="font-['Playfair_Display'] italic text-white/15 text-sm">
-            "Your Story Isn't Over" â€” Romans 8:28
+            "Your Story Isn't Over" — Romans 8:28
           </p>
         </div>
       </div>
@@ -2957,7 +2513,7 @@ function Footer({
   );
 }
 
-// â”€â”€â”€ App â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
   const [showRegister, setShowRegister] = useState(false);
@@ -3010,7 +2566,7 @@ export default function App() {
           className="flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 bg-[#c9a84c] hover:bg-[#d4b55f] text-[#07090f] font-bold rounded-full shadow-[0_8px_40px_rgba(201,168,76,0.4)] transition-all duration-300 hover:shadow-[0_8px_60px_rgba(201,168,76,0.6)] text-xs md:text-sm whitespace-nowrap"
         >
           <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
-          <span>Register Now â€” 15 August 2026</span>
+          <span>Register Now — 15 August 2026</span>
           <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
         </button>
       </motion.div>
@@ -3214,7 +2770,7 @@ function RetrieveModal({
 
               {message && (
                 <p className="text-red-400 text-xs mt-1">
-                  âš ï¸ {message}
+                  ⚠️ {message}
                 </p>
               )}
 
@@ -3250,7 +2806,7 @@ function RetrieveModal({
 
               {message && (
                 <p className="text-red-400 text-xs mt-1">
-                  âš ï¸ {message}
+                  ⚠️ {message}
                 </p>
               )}
 
@@ -3406,9 +2962,9 @@ function RetrieveModal({
                     className={`w-full bg-white/6 border rounded-xl px-4 py-3 text-white text-sm outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition-all ${editErrors.age ? "border-red-500/50" : "border-white/10 focus:border-[#c9a84c]/40"}`}
                   >
                     <option value="" className="bg-[#0d1020]">Select age</option>
-                    <option value="13-17" className="bg-[#0d1020]">13â€“17 years</option>
-                    <option value="18-24" className="bg-[#0d1020]">18â€“24 years</option>
-                    <option value="25-35" className="bg-[#0d1020]">25â€“35 years</option>
+                    <option value="13-17" className="bg-[#0d1020]">13–17 years</option>
+                    <option value="18-24" className="bg-[#0d1020]">18–24 years</option>
+                    <option value="25-35" className="bg-[#0d1020]">25–35 years</option>
                     <option value="35+" className="bg-[#0d1020]">35+ years</option>
                   </select>
                   {editErrors.age && <p className="text-red-400 text-xs mt-1">{editErrors.age}</p>}
@@ -3591,7 +3147,7 @@ function AdminLoginModal({
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                placeholder="••••••••"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:border-[#c9a84c]/50 focus:outline-none transition-colors text-sm"
               />
             </div>
